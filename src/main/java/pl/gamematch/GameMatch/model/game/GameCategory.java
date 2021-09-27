@@ -6,40 +6,32 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import pl.gamematch.GameMatch.model.user.Role;
 import pl.gamematch.GameMatch.model.user.User;
 
 import javax.persistence.*;
-import java.util.Collection;
 import java.util.Date;
 
 /**
- * Created by Piotr Romanczak on 23-09-2021
- * Description: Game class
+ * Created by Piotr Romanczak on 27-09-2021
+ * Description: GameCategory class
  */
 
 @Entity
-@Table(name="game")
+@Table(name="game_cat")
 @Getter
 @Setter
-public class Game {
+public class GameCategory {
 
     @Id
-    @Column(name = "game_id")
+    @Column(name = "game_cat_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "game_title")
-    private String title;
+    @Column(name = "game_cat_email")
+    private String name;
 
-    @Column(name = "game_description")
-    private String description;
-
-    @Column(name = "game_rating")
-    private double rating;
-
-    @Column(name = "game_release_date")
-    private Date releaseDate;
+    @Column(name = "game_cat_rating")
+    private Double rating;
 
     @CreatedDate
     @Column(name = "created_date")
@@ -56,11 +48,5 @@ public class Game {
     @LastModifiedBy
     @Column(name = "modified_by")
     private Date modifiedBy;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_cat",
-            joinColumns = {@JoinColumn(name = "game_id")},
-            inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
-    private Collection<Role> gameCategories;
 
 }
