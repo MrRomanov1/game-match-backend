@@ -27,12 +27,13 @@ public class GameCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "game_cat_email")
+    @Column(name = "game_cat_name")
     private String name;
 
     @Column(name = "game_cat_rating")
     private Double rating;
 
+    /*
     @CreatedDate
     @Column(name = "created_date")
     private Date createdDate;
@@ -48,5 +49,5 @@ public class GameCategory {
     @LastModifiedBy
     @Column(name = "modified_by")
     private Date modifiedBy;
-
+    */
 }

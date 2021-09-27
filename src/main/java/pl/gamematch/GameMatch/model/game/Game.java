@@ -41,6 +41,7 @@ public class Game {
     @Column(name = "game_release_date")
     private Date releaseDate;
 
+    /*
     @CreatedDate
     @Column(name = "created_date")
     private Date createdDate;
@@ -56,9 +57,10 @@ public class Game {
     @LastModifiedBy
     @Column(name = "modified_by")
     private Date modifiedBy;
+    */
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_cat",
+    @JoinTable(name = "game_game_cat",
             joinColumns = {@JoinColumn(name = "game_id")},
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
     private Collection<Role> gameCategories;

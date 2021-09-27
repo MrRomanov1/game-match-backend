@@ -37,9 +37,11 @@ public class User {
     @Column(name = "user_last_name")
     private String lastName;
 
+    /*
     @CreatedDate
     @Column(name = "created_date")
     private Date createdDate;
+    */
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "role",
