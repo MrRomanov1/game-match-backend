@@ -42,7 +42,7 @@ public class User {
     private Date createdDate;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_role",
+    @JoinTable(name = "role",
             joinColumns = {@JoinColumn(name = "user_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Collection<Role> roles;
