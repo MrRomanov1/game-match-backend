@@ -37,10 +37,10 @@ public class RestConfig implements RepositoryRestConfigurer {
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 
-        HttpMethod[] theUnsupportedActions = {HttpMethod.PUT, HttpMethod.POST,
+        HttpMethod[] theUnsupportedActions = {HttpMethod.PUT,
                 HttpMethod.DELETE, HttpMethod.PATCH};
 
-        // disable HTTP methods for ProductCategory: PUT, POST and DELETE
+        // disable HTTP methods for ProductCategory: PUT and DELETE
         disableHttpMethods(Game.class, config, theUnsupportedActions);
         disableHttpMethods(GameCategory.class, config, theUnsupportedActions);
         disableHttpMethods(User.class, config, theUnsupportedActions);
