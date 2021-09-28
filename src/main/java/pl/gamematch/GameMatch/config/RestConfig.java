@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Created by Piotr Romanczak on 27-09-2021
+ * Description: RestConfig class
+ */
 @Configuration
 public class RestConfig implements RepositoryRestConfigurer {
 
