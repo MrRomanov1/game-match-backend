@@ -63,6 +63,6 @@ public class Game {
     @JoinTable(name = "game_game_cat",
             joinColumns = {@JoinColumn(name = "game_id")},
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
-    private Collection<Role> gameCategories;
+    private Collection<GameCategory> gameCategories;
 
 }
