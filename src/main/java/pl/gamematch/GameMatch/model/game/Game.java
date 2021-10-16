@@ -35,6 +35,15 @@ public class Game {
     @Column(name = "game_description")
     private String description;
 
+    @Column(name = "game_description_first_header")
+    private String descriptionFirstHeader;
+
+    @Column(name = "game_description_first")
+    private String descriptionFirst;
+
+    @Column(name = "game_image_url")
+    private String imageUrl;
+
     @Column(name = "game_rating")
     private double rating;
 
