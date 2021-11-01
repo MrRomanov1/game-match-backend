@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import pl.gamematch.GameMatch.model.game.*;
 import pl.gamematch.GameMatch.model.user.*;
@@ -50,7 +51,11 @@ public class RestConfig implements RepositoryRestConfigurer {
         exposeIds(config);
 
         // configure cors mapping
-        cors.addMapping(config.getBasePath() + "/**").allowedOrigins(allowedOrigins);
+        //cors.addMapping(config.getBasePath() + "/**").allowedOrigins(allowedOrigins);
+
+        // configure media type
+        config.setDefaultMediaType(MediaType.APPLICATION_JSON);
+        config.useHalAsDefaultJsonMediaType(false);
     }
 
     private void disableHttpMethods(Class theClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
