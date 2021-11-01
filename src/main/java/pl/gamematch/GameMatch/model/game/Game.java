@@ -44,6 +44,15 @@ public class Game {
     @Column(name = "game_image_url")
     private String imageUrl;
 
+    @Column(name = "game_trailer_url")
+    private String trailerUrl;
+
+    @Column(name = "game_sys_req_low")
+    private String systemMinimumRequirements;
+
+    @Column(name = "game_sys_req_rec")
+    private String systemRecommendedRequirements;
+
     @Column(name = "game_rating")
     private double rating;
 
@@ -68,7 +77,7 @@ public class Game {
     private Date modifiedBy;
     */
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "game_game_cat",
             joinColumns = {@JoinColumn(name = "game_id")},
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})

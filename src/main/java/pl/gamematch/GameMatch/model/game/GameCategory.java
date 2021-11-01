@@ -9,6 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import pl.gamematch.GameMatch.model.user.User;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -32,6 +33,12 @@ public class GameCategory {
 
     @Column(name = "game_cat_rating")
     private Double rating;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "game_game_cat",
+            joinColumns = {@JoinColumn(name = "game_cat_id")},
+            inverseJoinColumns = {@JoinColumn(name = "game_id")})
+    private Collection<GameCategory> gameCategories;
 
     /*
     @CreatedDate
