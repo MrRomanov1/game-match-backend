@@ -26,7 +26,7 @@ public class GameCategory {
     @Id
     @Column(name = "game_cat_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long gameCategoryId;
 
     @Column(name = "game_cat_name")
     private String name;
@@ -34,11 +34,11 @@ public class GameCategory {
     @Column(name = "game_cat_rating")
     private Double rating;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    /*@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "game_game_cat",
             joinColumns = {@JoinColumn(name = "game_cat_id")},
             inverseJoinColumns = {@JoinColumn(name = "game_id")})
-    private Collection<GameCategory> gameCategories;
+    private Collection<Game> gamesInCategory;*/
 
     /*
     @CreatedDate
