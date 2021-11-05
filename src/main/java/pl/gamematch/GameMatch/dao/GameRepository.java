@@ -14,7 +14,5 @@ import java.util.List;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-    //@Query("SELECT games FROM Game game JOIN GameCategory gameCategory WHERE gameCategory.name =: categoryId")
     List<Game> findGamesByGameCategoriesName(String name);
-
 }
