@@ -2,15 +2,8 @@ package pl.gamematch.GameMatch.model.game;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import pl.gamematch.GameMatch.model.user.User;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Date;
 
 /**
  * Created by Piotr Romanczak on 27-09-2021
@@ -34,11 +27,8 @@ public class GameCategory {
     @Column(name = "game_cat_rating")
     private Double rating;
 
-    /*@ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "game_game_cat",
-            joinColumns = {@JoinColumn(name = "game_cat_id")},
-            inverseJoinColumns = {@JoinColumn(name = "game_id")})
-    private Collection<Game> gamesInCategory;*/
+    @Column(name = "game_cat_votes")
+    private Long numberOfVotes;
 
     /*
     @CreatedDate

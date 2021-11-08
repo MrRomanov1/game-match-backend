@@ -1,14 +1,13 @@
 package pl.gamematch.GameMatch.controller;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.gamematch.GameMatch.dao.GameRepository;
 import pl.gamematch.GameMatch.model.game.Game;
+import pl.gamematch.GameMatch.model.game.GameCategory;
 import pl.gamematch.GameMatch.service.GameService;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 public class GameController {
@@ -38,5 +37,31 @@ public class GameController {
     @GetMapping("/games/all")
     public List<Game> getAllGames() {
         return gameRepository.findAll();
+    }
+
+    @PostMapping("/match")
+    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
+        List <Game> gameList = new ArrayList<>();
+        Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
+
+        for (GameCategory category : gameCategories) {
+            gameCategoryByRating.put(category, calculateCategoryRating(category));
+        }
+
+        /**@description first category gets 10x higher evaluation **/
+        gameCategoryByRating.computeIfPresent(gameCategories.get(0),
+                (key, val) -> val * 10);
+
+        List<GameCategory> categoriesSortedByRatings = gameCategoryByRating
+                .entrySet().stream().sorted(Comparator
+                        .comparing(Map.Entry::getValue, Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        return gameList;
+    }
+
+    private Double calculateCategoryRating(GameCategory category) {
+        return category.getRating() * category.getNumberOfVotes();
     }
 }
