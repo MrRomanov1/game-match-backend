@@ -77,7 +77,12 @@ public class Game {
     private Date modifiedBy;
     */
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
     @JoinTable(name = "game_game_cat",
             joinColumns = {@JoinColumn(name = "game_id")},
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})

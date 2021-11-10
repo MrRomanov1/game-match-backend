@@ -40,8 +40,8 @@ public class GameController {
     }
 
     @PostMapping("/match")
-    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
-        List <Game> gameList = new ArrayList<>();
+    public @ResponseBody Map<Game, Double> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
+
         Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
 
         for (GameCategory category : gameCategories) {
@@ -52,16 +52,60 @@ public class GameController {
         gameCategoryByRating.computeIfPresent(gameCategories.get(0),
                 (key, val) -> val * 10);
 
-        List<GameCategory> categoriesSortedByRatings = gameCategoryByRating
-                .entrySet().stream().sorted(Comparator
-                        .comparing(Map.Entry::getValue, Comparator.reverseOrder()))
-                .map(Map.Entry::getKey)
+        List<GameCategory> categoriesSortedByRatings = sortCategoriesByRatings(gameCategoryByRating);
+
+        List<Game> gameList = gameRepository.findGamesByGameCategoriesIn(categoriesSortedByRatings);
+        Set gameListWithoutDuplicates = Set.copyOf(gameList);
+
+        List<String> categoryNamesToCompare = categoriesSortedByRatings
+                .stream()
+                .map(GameCategory::getName)
                 .collect(Collectors.toList());
 
-        return gameList;
+        return handleGameMatchingCalculations(gameListWithoutDuplicates, categoryNamesToCompare);
     }
 
     private Double calculateCategoryRating(GameCategory category) {
         return category.getRating() * category.getNumberOfVotes();
+    }
+
+    private List<GameCategory> sortCategoriesByRatings(Map<GameCategory, Double> unorderedCategories) {
+        return unorderedCategories
+                .entrySet().stream().sorted(Comparator
+                        .comparing(Map.Entry::getValue, Comparator.reverseOrder()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    private Map<Game, Double> handleGameMatchingCalculations(Set<Game> gameList, List<String> categoryNames) {
+
+        //TODO -> logika odpowiadająca za usuwanie z listy gier, które zostały dodane już do mapy
+        //TODO -> logika odpowiadająca za zmianę procentu zmatchowania w przypadku wystąpienia więcej niż jednej gry
+        //TODO -> logika odpowiadająca za sortowanie końcowych wyników po procencie zmatchowania (map.value)
+        while (!categoryNames.isEmpty()) {
+            if (!gameList.isEmpty()) {
+                System.out.println("***********");
+                Map <Game, Double> currentIterationGamesWithMatch = new HashMap<>();
+                for (Game game : gameList) {
+                    List<String> gameCategories = getSingleGameCategories(game);
+                    if (gameCategories.containsAll(categoryNames)) {
+                        System.out.println("tru");
+                    }
+                    System.out.println(game.getId());
+                }
+            }
+            categoryNames.remove(categoryNames.size()-1);
+        }
+
+        return null;
+    }
+
+    private List<String> getSingleGameCategories(Game game) {
+        Collection <GameCategory> gameCategories = game.getGameCategories();
+        List<String> gameCategoryNames = new ArrayList<>();
+        for (GameCategory gameCat : gameCategories) {
+            gameCategoryNames.add(gameCat.getName());
+        }
+        return gameCategoryNames;
     }
 }
