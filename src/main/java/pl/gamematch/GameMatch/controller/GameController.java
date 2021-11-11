@@ -1,11 +1,15 @@
 package pl.gamematch.GameMatch.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import pl.gamematch.GameMatch.Utils;
 import pl.gamematch.GameMatch.dao.GameRepository;
 import pl.gamematch.GameMatch.model.game.Game;
 import pl.gamematch.GameMatch.model.game.GameCategory;
 import pl.gamematch.GameMatch.service.GameService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +43,7 @@ public class GameController {
         return gameRepository.findAll();
     }
 
-    @PostMapping("/match")
+    @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Map<Game, Double> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
 
         Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
@@ -79,25 +83,40 @@ public class GameController {
 
     private Map<Game, Double> handleGameMatchingCalculations(Set<Game> gameList, List<String> categoryNames) {
 
-        //TODO -> logika odpowiadająca za usuwanie z listy gier, które zostały dodane już do mapy
-        //TODO -> logika odpowiadająca za zmianę procentu zmatchowania w przypadku wystąpienia więcej niż jednej gry
-        //TODO -> logika odpowiadająca za sortowanie końcowych wyników po procencie zmatchowania (map.value)
+        Map <Game, Double> gamesWithMatch = new HashMap<>();
+        List<Game> gamesAlreadyAddedToMap = new ArrayList<>();
+        int numberOfInsertedCategories = categoryNames.size();
+        int whileCounterToCalculateMatch = 0;
+
         while (!categoryNames.isEmpty()) {
             if (!gameList.isEmpty()) {
-                System.out.println("***********");
                 Map <Game, Double> currentIterationGamesWithMatch = new HashMap<>();
+
                 for (Game game : gameList) {
                     List<String> gameCategories = getSingleGameCategories(game);
-                    if (gameCategories.containsAll(categoryNames)) {
-                        System.out.println("tru");
+
+                    if (gameCategories.containsAll(categoryNames) && !gamesAlreadyAddedToMap.contains(game)) {
+                        currentIterationGamesWithMatch.put(game,
+                                calculateCurrentGameMatch(numberOfInsertedCategories,
+                                        whileCounterToCalculateMatch));
+                        gamesAlreadyAddedToMap.add(game);
                     }
-                    System.out.println(game.getId());
+                }
+                if (currentIterationGamesWithMatch.size() > 1) {
+                    gamesWithMatch.putAll(calculateGameMatchByRating(
+                            currentIterationGamesWithMatch,
+                            numberOfInsertedCategories,
+                            whileCounterToCalculateMatch));
+                }
+                else if (currentIterationGamesWithMatch.size() == 1){
+                    gamesWithMatch.putAll(currentIterationGamesWithMatch);
                 }
             }
             categoryNames.remove(categoryNames.size()-1);
+            whileCounterToCalculateMatch++;
         }
 
-        return null;
+        return Utils.sortByValue(gamesWithMatch);
     }
 
     private List<String> getSingleGameCategories(Game game) {
@@ -107,5 +126,46 @@ public class GameController {
             gameCategoryNames.add(gameCat.getName());
         }
         return gameCategoryNames;
+    }
+
+    private Double calculateCurrentGameMatch(int numberOfInsertedCategories, int whileCounterToCalculateMatch) {
+        Double currentGameMatch = ((numberOfInsertedCategories - whileCounterToCalculateMatch)  * 100d / numberOfInsertedCategories);
+
+        return BigDecimal.valueOf(currentGameMatch)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+    private Double calculateNewGameMatch (Double currentGroupMatchValue, Double matchValueRange, int mapIterator, int mapSize) {
+        Double newGameMatch = currentGroupMatchValue - (matchValueRange / mapSize) * mapIterator;
+
+        return BigDecimal.valueOf(newGameMatch)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+
+    private Map <Game, Double> calculateGameMatchByRating(Map <Game, Double> gamesWithMatchToRecalculate, int numberOfCategories, int numberOfIterations) {
+        Map <Game, Double> gamesWithNewMatchValues = new HashMap<>();
+        Double currentGroupMatchValue = gamesWithMatchToRecalculate.entrySet().iterator().next().getValue();
+        if (currentGroupMatchValue >= 50) {
+            Double nextGroupMatchValue = 0d;
+            if ((numberOfCategories - numberOfIterations - 1) != 0) {
+                nextGroupMatchValue = (numberOfCategories / (numberOfCategories - numberOfIterations - 1)) * 100d;
+            }
+            Double matchValueRange = currentGroupMatchValue - nextGroupMatchValue;
+            Map <Game, Double> gamesValuedByRatings = new HashMap<>();
+            for (Map.Entry <Game, Double> gameByMatch : gamesWithMatchToRecalculate.entrySet()) {
+                gamesValuedByRatings.put(gameByMatch.getKey(), gameByMatch.getKey().getRating() * gameByMatch.getKey().getNumberOfVotes());
+            }
+            Map <Game, Double> gamesValuedByRatingsSorted = Utils.sortByValue(gamesValuedByRatings);
+
+            int mapIterator = 0;
+            for (Map.Entry <Game, Double> gameByRating : gamesValuedByRatingsSorted.entrySet()) {
+                gamesWithNewMatchValues.put(gameByRating.getKey(), calculateNewGameMatch(currentGroupMatchValue, matchValueRange, mapIterator, gamesWithMatchToRecalculate.size()));
+                mapIterator++;
+            }
+            return gamesWithNewMatchValues;
+        }
+        return gamesWithMatchToRecalculate;
     }
 }

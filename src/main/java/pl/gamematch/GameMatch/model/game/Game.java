@@ -56,6 +56,9 @@ public class Game {
     @Column(name = "game_rating")
     private double rating;
 
+    @Column(name = "game_votes")
+    private int numberOfVotes;
+
     @Column(name = "game_release_date")
     private Date releaseDate;
 

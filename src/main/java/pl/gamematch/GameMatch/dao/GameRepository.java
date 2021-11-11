@@ -6,7 +6,6 @@ import pl.gamematch.GameMatch.model.game.Game;
 import pl.gamematch.GameMatch.model.game.GameCategory;
 
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
