@@ -2,16 +2,12 @@ package pl.gamematch.GameMatch.model.game;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import pl.gamematch.GameMatch.model.user.Role;
-import pl.gamematch.GameMatch.model.user.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Piotr Romanczak on 23-09-2021
@@ -62,6 +58,8 @@ public class Game {
     @Column(name = "game_release_date")
     private Date releaseDate;
 
+    private Double gameMatch;
+
     /*
     @CreatedDate
     @Column(name = "created_date")
@@ -91,4 +89,11 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
     private Collection<GameCategory> gameCategories;
 
+    public List<String> getSingleGameCategoriesNames() {
+        List<String> gameCategoryNames = new ArrayList<>();
+        for (GameCategory gameCat : gameCategories) {
+            gameCategoryNames.add(gameCat.getName());
+        }
+        return gameCategoryNames;
+    }
 }

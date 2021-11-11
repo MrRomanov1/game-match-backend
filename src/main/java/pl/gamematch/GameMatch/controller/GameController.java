@@ -2,16 +2,22 @@ package pl.gamematch.GameMatch.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import pl.gamematch.GameMatch.Utils;
+import pl.gamematch.GameMatch.utils.Utils;
 import pl.gamematch.GameMatch.dao.GameRepository;
 import pl.gamematch.GameMatch.model.game.Game;
 import pl.gamematch.GameMatch.model.game.GameCategory;
 import pl.gamematch.GameMatch.service.GameService;
+import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
+
+/**
+ * Created by Piotr Romanczak on 01-11-2021
+ * Description: GameController class
+ */
 
 @RestController
 public class GameController {
@@ -24,6 +30,12 @@ public class GameController {
         this.gameRepository = gameRepository;
     }
 
+    /**
+     * Created by Piotr Romanczak on 01-11-2021
+     * Description: this method returns a Game object by provided Id
+     * @param id
+     * @return Game
+     */
     @GetMapping("/games/{id}")
     public Game getGame(@PathVariable Long id) {
         if (gameRepository.findById(id).isPresent()) {
@@ -33,30 +45,47 @@ public class GameController {
         }
     }
 
+    /**
+     * Created by Piotr Romanczak on 02-11-2021
+     * Description: this method returns List of games by provided category name
+     * @param name
+     * @return List<Game>
+     */
     @GetMapping("/games-by-category/{name}")
     public List<Game> getGamesByCategory(@PathVariable String name) {
         return gameRepository.findGamesByGameCategoriesName(name);
     }
 
+    /**
+     * Created by Piotr Romanczak on 02-11-2021
+     * Description: this method returns List of all games
+     * @return List<Game>
+     */
     @GetMapping("/games/all")
     public List<Game> getAllGames() {
         return gameRepository.findAll();
     }
 
+    /**
+     * Created by Piotr Romanczak on 08-11-2021
+     * Description: this method returns List of all games by provided GameCategory List
+     * @param gameCategories
+     * @return List<Game>
+     */
     @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Map<Game, Double> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
+    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
 
         Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
 
         for (GameCategory category : gameCategories) {
-            gameCategoryByRating.put(category, calculateCategoryRating(category));
+            gameCategoryByRating.put(category, category.calculateCategoryRating());
         }
 
         /**@description first category gets 10x higher evaluation **/
         gameCategoryByRating.computeIfPresent(gameCategories.get(0),
                 (key, val) -> val * 10);
 
-        List<GameCategory> categoriesSortedByRatings = sortCategoriesByRatings(gameCategoryByRating);
+        List<GameCategory> categoriesSortedByRatings = GameCategoryUtils.sortCategoriesByRatings(gameCategoryByRating);
 
         List<Game> gameList = gameRepository.findGamesByGameCategoriesIn(categoriesSortedByRatings);
         Set gameListWithoutDuplicates = Set.copyOf(gameList);
@@ -69,65 +98,63 @@ public class GameController {
         return handleGameMatchingCalculations(gameListWithoutDuplicates, categoryNamesToCompare);
     }
 
-    private Double calculateCategoryRating(GameCategory category) {
-        return category.getRating() * category.getNumberOfVotes();
-    }
+    /**
+     * Created by Piotr Romanczak on 10-11-2021
+     * Description: this method calculates gameMatch field of all games
+     * @param gameList
+     * @param categoryNames
+     * @return List<Game>
+     */
+    private List<Game> handleGameMatchingCalculations(Set<Game> gameList, List<String> categoryNames) {
 
-    private List<GameCategory> sortCategoriesByRatings(Map<GameCategory, Double> unorderedCategories) {
-        return unorderedCategories
-                .entrySet().stream().sorted(Comparator
-                        .comparing(Map.Entry::getValue, Comparator.reverseOrder()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    }
-
-    private Map<Game, Double> handleGameMatchingCalculations(Set<Game> gameList, List<String> categoryNames) {
-
-        Map <Game, Double> gamesWithMatch = new HashMap<>();
-        List<Game> gamesAlreadyAddedToMap = new ArrayList<>();
+        List <Game> gamesWithMatch = new ArrayList<>();
+        List <Game> gamesAlreadyAdded = new ArrayList<>();
         int numberOfInsertedCategories = categoryNames.size();
         int whileCounterToCalculateMatch = 0;
 
         while (!categoryNames.isEmpty()) {
             if (!gameList.isEmpty()) {
-                Map <Game, Double> currentIterationGamesWithMatch = new HashMap<>();
+                List <Game> currentIterationGamesWithMatch = new ArrayList<>();
 
                 for (Game game : gameList) {
-                    List<String> gameCategories = getSingleGameCategories(game);
+                    List<String> gameCategories = game.getSingleGameCategoriesNames();
 
-                    if (gameCategories.containsAll(categoryNames) && !gamesAlreadyAddedToMap.contains(game)) {
-                        currentIterationGamesWithMatch.put(game,
-                                calculateCurrentGameMatch(numberOfInsertedCategories,
-                                        whileCounterToCalculateMatch));
-                        gamesAlreadyAddedToMap.add(game);
+                    if (gameCategories.containsAll(categoryNames) && !gamesAlreadyAdded.contains(game)) {
+                        game.setGameMatch(calculateCurrentGameMatch(
+                                numberOfInsertedCategories,
+                                whileCounterToCalculateMatch));
+
+                        currentIterationGamesWithMatch.add(game);
+                        gamesAlreadyAdded.add(game);
                     }
                 }
                 if (currentIterationGamesWithMatch.size() > 1) {
-                    gamesWithMatch.putAll(calculateGameMatchByRating(
+                    gamesWithMatch.addAll(calculateGameMatchByRating(
                             currentIterationGamesWithMatch,
                             numberOfInsertedCategories,
                             whileCounterToCalculateMatch));
                 }
                 else if (currentIterationGamesWithMatch.size() == 1){
-                    gamesWithMatch.putAll(currentIterationGamesWithMatch);
+                    gamesWithMatch.addAll(currentIterationGamesWithMatch);
                 }
             }
             categoryNames.remove(categoryNames.size()-1);
             whileCounterToCalculateMatch++;
         }
 
-        return Utils.sortByValue(gamesWithMatch);
+        return gamesWithMatch
+                .stream()
+                .sorted((o1, o2) -> o2.getGameMatch().compareTo(o1.getGameMatch()))
+                .collect(Collectors.toList());
     }
 
-    private List<String> getSingleGameCategories(Game game) {
-        Collection <GameCategory> gameCategories = game.getGameCategories();
-        List<String> gameCategoryNames = new ArrayList<>();
-        for (GameCategory gameCat : gameCategories) {
-            gameCategoryNames.add(gameCat.getName());
-        }
-        return gameCategoryNames;
-    }
-
+    /**
+     * Created by Piotr Romanczak on 11-11-2021
+     * Description: this method calculates gameMatch of current while loop
+     * @param numberOfInsertedCategories
+     * @param whileCounterToCalculateMatch
+     * @return Double
+     */
     private Double calculateCurrentGameMatch(int numberOfInsertedCategories, int whileCounterToCalculateMatch) {
         Double currentGameMatch = ((numberOfInsertedCategories - whileCounterToCalculateMatch)  * 100d / numberOfInsertedCategories);
 
@@ -136,6 +163,16 @@ public class GameController {
                 .doubleValue();
     }
 
+    /**
+     * Created by Piotr Romanczak on 11-11-2021
+     * Description: this method calculates gameMatch of current while loop
+     * when there are more than one game with the same match
+     * @param currentGroupMatchValue
+     * @param matchValueRange
+     * @param mapIterator
+     * @param mapSize
+     * @return Double
+     */
     private Double calculateNewGameMatch (Double currentGroupMatchValue, Double matchValueRange, int mapIterator, int mapSize) {
         Double newGameMatch = currentGroupMatchValue - (matchValueRange / mapSize) * mapIterator;
 
@@ -144,24 +181,35 @@ public class GameController {
                 .doubleValue();
     }
 
-    private Map <Game, Double> calculateGameMatchByRating(Map <Game, Double> gamesWithMatchToRecalculate, int numberOfCategories, int numberOfIterations) {
-        Map <Game, Double> gamesWithNewMatchValues = new HashMap<>();
-        Double currentGroupMatchValue = gamesWithMatchToRecalculate.entrySet().iterator().next().getValue();
+
+    /**
+     * Created by Piotr Romanczak on 11-11-2021
+     * Description: this method calculates is used to recalculate gameMatch field value
+     * when there is more than one game with the same match
+     * but only if match is higher than 50
+     * @param gamesWithMatchToRecalculate
+     * @param numberOfCategories
+     * @param numberOfIterations
+     * @return List <Game>
+     */
+    private List <Game> calculateGameMatchByRating(List <Game> gamesWithMatchToRecalculate, int numberOfCategories, int numberOfIterations) {
+        List <Game> gamesWithNewMatchValues = new ArrayList<>();
+        Double currentGroupMatchValue = gamesWithMatchToRecalculate.get(0).getGameMatch();
+
         if (currentGroupMatchValue >= 50) {
-            Double nextGroupMatchValue = 0d;
-            if ((numberOfCategories - numberOfIterations - 1) != 0) {
-                nextGroupMatchValue = (numberOfCategories / (numberOfCategories - numberOfIterations - 1)) * 100d;
-            }
+            Double nextGroupMatchValue = ((numberOfCategories - numberOfIterations - 1) * 100d / numberOfCategories);
             Double matchValueRange = currentGroupMatchValue - nextGroupMatchValue;
             Map <Game, Double> gamesValuedByRatings = new HashMap<>();
-            for (Map.Entry <Game, Double> gameByMatch : gamesWithMatchToRecalculate.entrySet()) {
-                gamesValuedByRatings.put(gameByMatch.getKey(), gameByMatch.getKey().getRating() * gameByMatch.getKey().getNumberOfVotes());
+
+            for (Game gameByMatch : gamesWithMatchToRecalculate) {
+                gamesValuedByRatings.put(gameByMatch, gameByMatch.getRating() * gameByMatch.getNumberOfVotes());
             }
             Map <Game, Double> gamesValuedByRatingsSorted = Utils.sortByValue(gamesValuedByRatings);
 
             int mapIterator = 0;
             for (Map.Entry <Game, Double> gameByRating : gamesValuedByRatingsSorted.entrySet()) {
-                gamesWithNewMatchValues.put(gameByRating.getKey(), calculateNewGameMatch(currentGroupMatchValue, matchValueRange, mapIterator, gamesWithMatchToRecalculate.size()));
+                gameByRating.getKey().setGameMatch(calculateNewGameMatch(currentGroupMatchValue, matchValueRange, mapIterator, gamesWithMatchToRecalculate.size()));
+                gamesWithNewMatchValues.add(gameByRating.getKey());
                 mapIterator++;
             }
             return gamesWithNewMatchValues;

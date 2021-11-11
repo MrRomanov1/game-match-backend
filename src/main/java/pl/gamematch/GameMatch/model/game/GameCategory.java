@@ -47,4 +47,8 @@ public class GameCategory {
     @Column(name = "modified_by")
     private Date modifiedBy;
     */
+
+    public Double calculateCategoryRating() {
+        return rating * numberOfVotes;
+    }
 }

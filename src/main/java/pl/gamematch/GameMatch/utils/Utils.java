@@ -1,4 +1,4 @@
-package pl.gamematch.GameMatch;
+package pl.gamematch.GameMatch.utils;
 
 import java.util.*;
 
