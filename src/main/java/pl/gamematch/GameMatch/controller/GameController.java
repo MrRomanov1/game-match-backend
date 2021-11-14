@@ -2,6 +2,7 @@ package pl.gamematch.GameMatch.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import pl.gamematch.GameMatch.dao.GameCategoryRepository;
 import pl.gamematch.GameMatch.utils.Utils;
 import pl.gamematch.GameMatch.dao.GameRepository;
 import pl.gamematch.GameMatch.model.game.Game;
@@ -24,10 +25,12 @@ public class GameController {
 
     private GameService gameService;
     private GameRepository gameRepository;
+    private GameCategoryRepository gameCategoryRepository;
 
-    public GameController(GameService gameService, GameRepository gameRepository) {
+    public GameController(GameService gameService, GameRepository gameRepository, GameCategoryRepository gameCategoryRepository) {
         this.gameService = gameService;
         this.gameRepository = gameRepository;
+        this.gameCategoryRepository = gameCategoryRepository;
     }
 
     /**
@@ -69,11 +72,18 @@ public class GameController {
     /**
      * Created by Piotr Romanczak on 08-11-2021
      * Description: this method returns List of all games by provided GameCategory List
-     * @param gameCategories
+     * @param inGameCategories
      * @return List<Game>
      */
     @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> gameCategories) {
+    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> inGameCategories) {
+        List<String> gameCategoryNames = new ArrayList<>();
+
+        for (GameCategory gameCategoryFromInput : inGameCategories) {
+            gameCategoryNames.add(gameCategoryFromInput.getName());
+        }
+
+        List<GameCategory> gameCategories = gameCategoryRepository.findGameCategoriesByNameIn(gameCategoryNames);
 
         Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
 

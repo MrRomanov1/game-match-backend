@@ -1,10 +1,13 @@
 package pl.gamematch.GameMatch.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.stereotype.Repository;
 import pl.gamematch.GameMatch.model.game.GameCategory;
 
-@RepositoryRestResource(collectionResourceRel = "gameCategories", path = "game-categories")
+import java.util.List;
+
+@Repository
 public interface GameCategoryRepository extends JpaRepository<GameCategory, Long> {
 
+    List<GameCategory> findGameCategoriesByNameIn(List <String> gameCategoryList);
 }
