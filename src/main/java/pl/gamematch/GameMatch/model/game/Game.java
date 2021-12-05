@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Created by Piotr Romanczak on 23-09-2021
- * Description: Game class
+ * Description: Game entity
  */
 
 @Entity
