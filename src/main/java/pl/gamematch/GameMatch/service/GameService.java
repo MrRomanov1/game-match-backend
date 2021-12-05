@@ -5,6 +5,8 @@ import pl.gamematch.GameMatch.dao.GameCategoryRepository;
 import pl.gamematch.GameMatch.dao.GameRepository;
 import pl.gamematch.GameMatch.model.game.Game;
 import pl.gamematch.GameMatch.model.game.GameCategory;
+import pl.gamematch.GameMatch.model.game.GameMode;
+import pl.gamematch.GameMatch.model.game.Platform;
 import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 import pl.gamematch.GameMatch.utils.Utils;
 
@@ -59,7 +61,7 @@ public class GameService {
      * @param inGameCategories
      * @return List<Game>
      */
-    public List<Game> handleGameMatch(ArrayList<GameCategory> inGameCategories) {
+    public List<Game> handleGameMatch(ArrayList<GameCategory> inGameCategories, ArrayList<GameMode> inGameModes, ArrayList<Platform> inPlatforms) {
 
         List<GameCategory> gameCategories =
                 gameCategoryRepository
@@ -68,6 +70,8 @@ public class GameService {
         List<GameCategory> categoriesSortedByRatings = getGameCategoriesSortedByRating(gameCategories);
 
         List<Game> gameList = gameRepository.findGamesByGameCategoriesIn(categoriesSortedByRatings);
+        List<Game> gameListByGameModes = gameRepository.findGamesByGameModesIn(inGameModes);
+        List<Game> gameListByPlatforms = gameRepository.findGamesByPlatformsIn(inPlatforms);
         Set<Game> gameListWithoutDuplicates = Set.copyOf(gameList);
 
         List<String> categoryNamesToCompare = categoriesSortedByRatings
@@ -140,10 +144,6 @@ public class GameService {
         for (GameCategory category : gameCategories) {
             gameCategoryByRating.put(category, category.calculateCategoryRating());
         }
-
-        /**@description first category gets 10x higher evaluation **/
-        gameCategoryByRating.computeIfPresent(gameCategories.get(0),
-                (key, val) -> val * 10);
 
         return GameCategoryUtils.sortCategoriesByRatings(gameCategoryByRating);
     }

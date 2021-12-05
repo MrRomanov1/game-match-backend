@@ -109,7 +109,7 @@ public class Game {
     @JoinTable(name = "game_platform",
             joinColumns = {@JoinColumn(name = "game_id")},
             inverseJoinColumns = {@JoinColumn(name = "platform_id")})
-    private Collection<GameCategory> platforms;
+    private Collection<Platform> platforms;
 
     public List<String> getSingleGameCategoriesNames() {
         List<String> gameCategoryNames = new ArrayList<>();

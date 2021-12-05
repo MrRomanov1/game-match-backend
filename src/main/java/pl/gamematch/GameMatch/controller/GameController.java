@@ -4,6 +4,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pl.gamematch.GameMatch.model.game.Game;
 import pl.gamematch.GameMatch.model.game.GameCategory;
+import pl.gamematch.GameMatch.model.game.GameMode;
+import pl.gamematch.GameMatch.model.game.Platform;
 import pl.gamematch.GameMatch.service.GameService;
 
 import java.util.*;
@@ -61,7 +63,7 @@ public class GameController {
      * @return List<Game>
      */
     @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> inGameCategories) {
-        return gameService.handleGameMatch(inGameCategories);
+    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> inGameCategories, ArrayList<GameMode> inGameModes, ArrayList<Platform> inPlatforms) {
+        return gameService.handleGameMatch(inGameCategories, inGameModes, inPlatforms);
     }
 }
