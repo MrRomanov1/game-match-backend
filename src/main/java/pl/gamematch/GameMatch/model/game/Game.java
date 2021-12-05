@@ -89,6 +89,28 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
     private Collection<GameCategory> gameCategories;
 
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "game_game_mode",
+            joinColumns = {@JoinColumn(name = "game_id")},
+            inverseJoinColumns = {@JoinColumn(name = "game_mode_id")})
+    private Collection<GameMode> gameModes;
+
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "game_platform",
+            joinColumns = {@JoinColumn(name = "game_id")},
+            inverseJoinColumns = {@JoinColumn(name = "platform_id")})
+    private Collection<GameCategory> platforms;
+
     public List<String> getSingleGameCategoriesNames() {
         List<String> gameCategoryNames = new ArrayList<>();
         for (GameCategory gameCat : gameCategories) {
