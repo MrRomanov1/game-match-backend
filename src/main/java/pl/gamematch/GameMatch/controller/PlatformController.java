@@ -1,5 +1,6 @@
 package pl.gamematch.GameMatch.controller;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.gamematch.GameMatch.dao.PlatformRepository;
@@ -28,6 +29,6 @@ public class PlatformController {
      */
     @GetMapping("/platforms")
     public List<Platform> getAllPlatforms() {
-        return platformRepository.findAll();
+        return platformRepository.findAll(Sort.by(Sort.Direction.ASC, "order"));
     }
 }

@@ -26,4 +26,10 @@ public class Platform {
 
     @Column(name = "platform_icon")
     private String icon;
+
+    @Column(name = "platform_order")
+    private int order;
+
+    @Column(name = "platform_type")
+    private String type;
 }
