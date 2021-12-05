@@ -24,7 +24,7 @@ public class AppConfig implements WebMvcConfigurer {
         // set up cors mapping
         cors.addMapping( "/**")
                 .allowedOrigins(allowedOrigins)
-                .allowedMethods("GET");
+                .allowedMethods("GET", "POST");
     }
 }
 
