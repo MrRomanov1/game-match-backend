@@ -3,10 +3,7 @@ package pl.gamematch.GameMatch.service;
 import org.springframework.stereotype.Service;
 import pl.gamematch.GameMatch.dao.GameCategoryRepository;
 import pl.gamematch.GameMatch.dao.GameRepository;
-import pl.gamematch.GameMatch.model.game.Game;
-import pl.gamematch.GameMatch.model.game.GameCategory;
-import pl.gamematch.GameMatch.model.game.GameMode;
-import pl.gamematch.GameMatch.model.game.Platform;
+import pl.gamematch.GameMatch.model.game.*;
 import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 import pl.gamematch.GameMatch.utils.Utils;
 
@@ -58,11 +55,16 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 21-11-2021
      * Description: this method returns List of all games by provided GameCategory List
-     * @param inGameCategories
+     * @param inGameWrapper
      * @return List<Game>
      */
-    public List<Game> handleGameMatch(ArrayList<GameCategory> inGameCategories, ArrayList<GameMode> inGameModes, ArrayList<Platform> inPlatforms) {
-
+    public List<Game> handleGameMatch(GameWrapper inGameWrapper) {
+        ArrayList<GameCategory> inGameCategories = inGameWrapper.getGameCategories();
+        List<GameMode> inGameModes = inGameWrapper.getGameModes();
+        List<Platform> inPlatforms = inGameWrapper.getPlatforms();
+        System.out.println(inGameCategories);
+        System.out.println(inGameModes);
+        System.out.println(inPlatforms);
         List<GameCategory> gameCategories =
                 gameCategoryRepository
                         .findGameCategoriesByNameIn(getGameCategoryNames(inGameCategories));
