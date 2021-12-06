@@ -118,4 +118,8 @@ public class Game {
         }
         return gameCategoryNames;
     }
+
+    public Double calculateGameRating() {
+        return rating * numberOfVotes;
+    }
 }
