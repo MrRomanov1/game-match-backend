@@ -62,9 +62,6 @@ public class GameService {
         ArrayList<GameCategory> inGameCategories = inGameWrapper.getGameCategories();
         List<GameMode> inGameModes = inGameWrapper.getGameModes();
         List<Platform> inPlatforms = inGameWrapper.getPlatforms();
-        System.out.println(inGameCategories);
-        System.out.println(inGameModes);
-        System.out.println(inPlatforms);
         List<GameCategory> gameCategories =
                 gameCategoryRepository
                         .findGameCategoriesByNameIn(getGameCategoryNames(inGameCategories));
@@ -239,15 +236,15 @@ public class GameService {
         List<Game> gamesWithNewMatchValues = new ArrayList<>();
         Double nextGroupMatchValue = ((numberOfCategories - numberOfIterations - 1) * 100d / numberOfCategories);
         Double matchValueRange = currentGroupMatchValue - nextGroupMatchValue;
-        Map<Game, Double> gamesValuedByRatings = new HashMap<>();
+        Map<Game, Integer> gamesValuedByRatings = new HashMap<>();
 
         for (Game gameByMatch : gamesWithMatchToRecalculate) {
             gamesValuedByRatings.put(gameByMatch, gameByMatch.getRating() * gameByMatch.getNumberOfVotes());
         }
-        Map<Game, Double> gamesValuedByRatingsSorted = Utils.sortByValue(gamesValuedByRatings);
+        Map<Game, Integer> gamesValuedByRatingsSorted = Utils.sortByValue(gamesValuedByRatings);
 
         int mapIterator = 0;
-        for (Map.Entry<Game, Double> gameByRating : gamesValuedByRatingsSorted.entrySet()) {
+        for (Map.Entry<Game, Integer> gameByRating : gamesValuedByRatingsSorted.entrySet()) {
             gameByRating.getKey().setGameMatch(calculateNewGameMatch(currentGroupMatchValue, matchValueRange, mapIterator, gamesWithMatchToRecalculate.size()));
             gamesWithNewMatchValues.add(gameByRating.getKey());
             mapIterator++;

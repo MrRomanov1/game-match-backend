@@ -50,7 +50,7 @@ public class Game {
     private String systemRecommendedRequirements;
 
     @Column(name = "game_rating")
-    private double rating;
+    private int rating;
 
     @Column(name = "game_votes")
     private int numberOfVotes;
@@ -119,7 +119,23 @@ public class Game {
         return gameCategoryNames;
     }
 
-    public Double calculateGameRating() {
+    public int calculateGameRating() {
         return rating * numberOfVotes;
+    }
+
+    public List <String> getPlatformIcons () {
+        List <String> platformIcons = new ArrayList<>();
+        for (Platform platform : platforms) {
+            if (platform.getType().contains("PlayStation")) {
+                platformIcons.add("fab fa-playstation");
+            }
+            if (platform.getType().contains("Xbox")) {
+                platformIcons.add("fab fa-xbox");
+            }
+            if (platform.getType().contains("PC")) {
+                platformIcons.add("pi pi-microsoft");
+            }
+        }
+        return platformIcons;
     }
 }
