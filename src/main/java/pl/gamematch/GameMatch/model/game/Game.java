@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * Created by Piotr Romanczak on 23-09-2021
- * Description: Game class
+ * Description: Game entity
  */
 
 @Entity
@@ -50,7 +50,7 @@ public class Game {
     private String systemRecommendedRequirements;
 
     @Column(name = "game_rating")
-    private double rating;
+    private int rating;
 
     @Column(name = "game_votes")
     private int numberOfVotes;
@@ -89,11 +89,53 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "game_cat_id")})
     private Collection<GameCategory> gameCategories;
 
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "game_game_mode",
+            joinColumns = {@JoinColumn(name = "game_id")},
+            inverseJoinColumns = {@JoinColumn(name = "game_mode_id")})
+    private Collection<GameMode> gameModes;
+
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "game_platform",
+            joinColumns = {@JoinColumn(name = "game_id")},
+            inverseJoinColumns = {@JoinColumn(name = "platform_id")})
+    private Collection<Platform> platforms;
+
     public List<String> getSingleGameCategoriesNames() {
         List<String> gameCategoryNames = new ArrayList<>();
         for (GameCategory gameCat : gameCategories) {
             gameCategoryNames.add(gameCat.getName());
         }
         return gameCategoryNames;
+    }
+
+    public int calculateGameRating() {
+        return rating * numberOfVotes;
+    }
+
+    public List <String> getPlatformIcons () {
+        List <String> platformIcons = new ArrayList<>();
+        for (Platform platform : platforms) {
+            if (platform.getType().contains("PlayStation")) {
+                platformIcons.add("fab fa-playstation");
+            }
+            if (platform.getType().contains("Xbox")) {
+                platformIcons.add("fab fa-xbox");
+            }
+            if (platform.getType().contains("PC")) {
+                platformIcons.add("pi pi-microsoft");
+            }
+        }
+        return platformIcons;
     }
 }

@@ -2,8 +2,7 @@ package pl.gamematch.GameMatch.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import pl.gamematch.GameMatch.model.game.Game;
-import pl.gamematch.GameMatch.model.game.GameCategory;
+import pl.gamematch.GameMatch.model.game.*;
 import pl.gamematch.GameMatch.service.GameService;
 
 import java.util.*;
@@ -57,11 +56,11 @@ public class GameController {
     /**
      * Created by Piotr Romanczak on 08-11-2021
      * Description: this method returns List of all games by provided GameCategory List
-     * @param inGameCategories
+     * @param inGameWrapper
      * @return List<Game>
      */
     @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody ArrayList<GameCategory> inGameCategories) {
-        return gameService.handleGameMatch(inGameCategories);
+    public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody GameWrapper inGameWrapper) {
+        return gameService.handleGameMatch(inGameWrapper);
     }
 }
