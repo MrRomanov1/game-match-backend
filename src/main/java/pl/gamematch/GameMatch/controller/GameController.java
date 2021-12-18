@@ -54,6 +54,14 @@ public class GameController {
     }
 
     /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of all games that have not been releaseg
+     * @return List<Game>
+     */
+    @GetMapping("/games/not-released")
+    public List<Game> getAllNotReleasedGames() { return gameService.getNotReleasedGames();}
+
+    /**
      * Created by Piotr Romanczak on 08-11-2021
      * Description: this method returns List of all games by provided GameCategory List
      * @param inGameWrapper

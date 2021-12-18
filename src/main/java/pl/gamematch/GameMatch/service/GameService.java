@@ -297,4 +297,23 @@ public class GameService {
         }
         return gameListByAllConditions;
     }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of all games that have not been released yet
+     * @return List<Game>
+     */
+    public List<Game> getNotReleasedGames() {
+        List <Game> notReleasedGames = new ArrayList<>();
+
+        Date today = new Date();
+        List<Game> allGames = gameRepository.findAll();
+
+        for (Game game : allGames) {
+            if (game.getReleaseDate().after(today)) {
+                notReleasedGames.add(game);
+            }
+        }
+        return notReleasedGames;
+    }
 }
