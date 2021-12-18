@@ -39,7 +39,7 @@ public class GameController {
      * @return List<Game>
      */
     @GetMapping("/games-by-category/{name}")
-    public List<Game> getGamesByCategory(@PathVariable String name) {
+    public Set<Game> getGamesByCategory(@PathVariable String name) {
         return gameService.getGamesByCategory(name);
     }
 
@@ -52,6 +52,30 @@ public class GameController {
     public List<Game> getAllGames() {
         return gameService.getAllGames();
     }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of all games that have not been released
+     * @return List<Game>
+     */
+    @GetMapping("/games/not-released")
+    public List<Game> getAllNotReleasedGames() { return gameService.getNotReleasedGames();}
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    @GetMapping("/games/popular")
+    public List<Game> getPopularGames() { return gameService.getPopularGames();}
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    @GetMapping("/games/highest-rating")
+    public List<Game> getHighRatedGames() { return gameService.getHighRatedGames();}
 
     /**
      * Created by Piotr Romanczak on 08-11-2021

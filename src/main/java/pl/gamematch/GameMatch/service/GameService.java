@@ -2,7 +2,9 @@ package pl.gamematch.GameMatch.service;
 
 import org.springframework.stereotype.Service;
 import pl.gamematch.GameMatch.dao.GameCategoryRepository;
+import pl.gamematch.GameMatch.dao.GameModeRepository;
 import pl.gamematch.GameMatch.dao.GameRepository;
+import pl.gamematch.GameMatch.dao.PlatformRepository;
 import pl.gamematch.GameMatch.model.game.*;
 import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 import pl.gamematch.GameMatch.utils.Utils;
@@ -17,10 +19,18 @@ public class GameService {
 
     private GameRepository gameRepository;
     private GameCategoryRepository gameCategoryRepository;
+    private GameModeRepository gameModeRepository;
+    private PlatformRepository platformRepository;
 
-    public GameService(GameRepository gameRepository, GameCategoryRepository gameCategoryRepository) {
+    public GameService(
+            GameRepository gameRepository,
+            GameCategoryRepository gameCategoryRepository,
+            GameModeRepository gameModeRepository,
+            PlatformRepository platformRepository) {
         this.gameRepository = gameRepository;
         this.gameCategoryRepository = gameCategoryRepository;
+        this.gameModeRepository = gameModeRepository;
+        this.platformRepository = platformRepository;
     }
 
     /**
@@ -39,8 +49,17 @@ public class GameService {
      * @param name
      * @return List<Game>
      */
-    public List<Game> getGamesByCategory(String name) {
-        return gameRepository.findGamesByGameCategoriesName(name);
+    public Set<Game> getGamesByCategory(String name) {
+        if (!gameCategoryRepository.findGameCategoriesByAlias(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByGameCategoriesAlias(name));
+        }
+        if (!gameModeRepository.findGameModesByName(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByGameModesName(name));
+        }
+        if (!platformRepository.findPlatformsByType(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByPlatformsType(name));
+        }
+        return null;
     }
 
     /**
@@ -296,5 +315,50 @@ public class GameService {
             return Set.copyOf(gameList);
         }
         return gameListByAllConditions;
+    }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of all games that have not been released yet
+     * @return List<Game>
+     */
+    public List<Game> getNotReleasedGames() {
+        List <Game> notReleasedGames = new ArrayList<>();
+
+        Date today = new Date();
+        List<Game> allGames = gameRepository.findAll();
+
+        for (Game game : allGames) {
+            if (game.getReleaseDate().after(today)) {
+                notReleasedGames.add(game);
+            }
+        }
+        return notReleasedGames;
+    }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    public List<Game> getPopularGames() {
+        List<Game> allGames = gameRepository.findAll();
+
+        return allGames.stream()
+                .sorted(Comparator.comparingDouble(Game::calculateGameRating).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    public List<Game> getHighRatedGames() {
+        List<Game> allGames = gameRepository.findAll();
+
+        return allGames.stream()
+                .sorted(Comparator.comparingDouble(Game::getRating).reversed())
+                .collect(Collectors.toList());
     }
 }

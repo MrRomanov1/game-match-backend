@@ -126,13 +126,13 @@ public class Game {
     public List <String> getPlatformIcons () {
         List <String> platformIcons = new ArrayList<>();
         for (Platform platform : platforms) {
-            if (platform.getType().contains("PlayStation")) {
+            if (platform.getType().contains("PlayStation") && !platformIcons.contains("fab fa-playstation")) {
                 platformIcons.add("fab fa-playstation");
             }
-            if (platform.getType().contains("Xbox")) {
+            if (platform.getType().contains("Xbox") && !platformIcons.contains("fab fa-xbox")) {
                 platformIcons.add("fab fa-xbox");
             }
-            if (platform.getType().contains("PC")) {
+            if (platform.getType().contains("PC") && !platformIcons.contains("pi pi-microsoft")) {
                 platformIcons.add("pi pi-microsoft");
             }
         }

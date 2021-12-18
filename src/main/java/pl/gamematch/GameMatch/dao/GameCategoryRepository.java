@@ -10,4 +10,5 @@ import java.util.List;
 public interface GameCategoryRepository extends JpaRepository<GameCategory, Long> {
 
     List<GameCategory> findGameCategoriesByNameIn(List <String> gameCategoryList);
+    List<GameCategory> findGameCategoriesByAlias(String name);
 }
