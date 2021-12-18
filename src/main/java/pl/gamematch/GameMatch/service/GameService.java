@@ -2,7 +2,9 @@ package pl.gamematch.GameMatch.service;
 
 import org.springframework.stereotype.Service;
 import pl.gamematch.GameMatch.dao.GameCategoryRepository;
+import pl.gamematch.GameMatch.dao.GameModeRepository;
 import pl.gamematch.GameMatch.dao.GameRepository;
+import pl.gamematch.GameMatch.dao.PlatformRepository;
 import pl.gamematch.GameMatch.model.game.*;
 import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 import pl.gamematch.GameMatch.utils.Utils;
@@ -17,10 +19,18 @@ public class GameService {
 
     private GameRepository gameRepository;
     private GameCategoryRepository gameCategoryRepository;
+    private GameModeRepository gameModeRepository;
+    private PlatformRepository platformRepository;
 
-    public GameService(GameRepository gameRepository, GameCategoryRepository gameCategoryRepository) {
+    public GameService(
+            GameRepository gameRepository,
+            GameCategoryRepository gameCategoryRepository,
+            GameModeRepository gameModeRepository,
+            PlatformRepository platformRepository) {
         this.gameRepository = gameRepository;
         this.gameCategoryRepository = gameCategoryRepository;
+        this.gameModeRepository = gameModeRepository;
+        this.platformRepository = platformRepository;
     }
 
     /**
@@ -39,8 +49,17 @@ public class GameService {
      * @param name
      * @return List<Game>
      */
-    public List<Game> getGamesByCategory(String name) {
-        return gameRepository.findGamesByGameCategoriesName(name);
+    public Set<Game> getGamesByCategory(String name) {
+        if (!gameCategoryRepository.findGameCategoriesByAlias(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByGameCategoriesAlias(name));
+        }
+        if (!gameModeRepository.findGameModesByName(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByGameModesName(name));
+        }
+        if (!platformRepository.findPlatformsByType(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByPlatformsType(name));
+        }
+        return null;
     }
 
     /**

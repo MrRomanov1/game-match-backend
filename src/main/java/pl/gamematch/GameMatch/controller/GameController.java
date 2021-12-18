@@ -39,7 +39,7 @@ public class GameController {
      * @return List<Game>
      */
     @GetMapping("/games-by-category/{name}")
-    public List<Game> getGamesByCategory(@PathVariable String name) {
+    public Set<Game> getGamesByCategory(@PathVariable String name) {
         return gameService.getGamesByCategory(name);
     }
 

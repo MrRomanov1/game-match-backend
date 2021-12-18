@@ -24,6 +24,9 @@ public class GameCategory {
     @Column(name = "game_cat_name")
     private String name;
 
+    @Column(name = "game_cat_alias")
+    private String alias;
+
     @Column(name = "game_cat_rating")
     private Double rating;
 

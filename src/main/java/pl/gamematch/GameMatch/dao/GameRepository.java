@@ -12,8 +12,10 @@ import java.util.List;
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
 
-    List<Game> findGamesByGameCategoriesName(String name);
+    List<Game> findGamesByGameCategoriesAlias(String name);
+    List<Game> findGamesByGameModesName (String gameModeName);
+    List<Game> findGamesByPlatformsType(String platformType);
     List<Game> findGamesByGameCategoriesIn (List <GameCategory> gameCategoryList);
-    List<Game> findGamesByGameModesIn (List <GameMode> gameCategoryList);
-    List<Game> findGamesByPlatformsIn (List <Platform> gameCategoryList);
+    List<Game> findGamesByGameModesIn (List <GameMode> gameModeList);
+    List<Game> findGamesByPlatformsIn (List <Platform> platformList);
 }
