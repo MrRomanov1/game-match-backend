@@ -55,11 +55,27 @@ public class GameController {
 
     /**
      * Created by Piotr Romanczak on 18-12-2021
-     * Description: this method returns List of all games that have not been releaseg
+     * Description: this method returns List of all games that have not been released
      * @return List<Game>
      */
     @GetMapping("/games/not-released")
     public List<Game> getAllNotReleasedGames() { return gameService.getNotReleasedGames();}
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    @GetMapping("/games/popular")
+    public List<Game> getPopularGames() { return gameService.getPopularGames();}
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    @GetMapping("/games/highest-rating")
+    public List<Game> getHighRatedGames() { return gameService.getHighRatedGames();}
 
     /**
      * Created by Piotr Romanczak on 08-11-2021

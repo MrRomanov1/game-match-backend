@@ -335,4 +335,30 @@ public class GameService {
         }
         return notReleasedGames;
     }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    public List<Game> getPopularGames() {
+        List<Game> allGames = gameRepository.findAll();
+
+        return allGames.stream()
+                .sorted(Comparator.comparingDouble(Game::calculateGameRating).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Created by Piotr Romanczak on 18-12-2021
+     * Description: this method returns List of most popular games
+     * @return List<Game>
+     */
+    public List<Game> getHighRatedGames() {
+        List<Game> allGames = gameRepository.findAll();
+
+        return allGames.stream()
+                .sorted(Comparator.comparingDouble(Game::getRating).reversed())
+                .collect(Collectors.toList());
+    }
 }
