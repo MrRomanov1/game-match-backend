@@ -12,7 +12,7 @@ import java.util.Collection;
  * Description: Role class
  */
 
-@Entity
+//@Entity
 @Table(name = "role")
 @Getter
 @Setter
