@@ -14,7 +14,7 @@ import java.util.Date;
  * Description: User class
  */
 
-@Entity
+//@Entity
 @Table(name="user")
 @Getter
 @Setter
