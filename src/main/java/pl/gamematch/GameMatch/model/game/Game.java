@@ -25,8 +25,11 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "game_title")
+    @Column(name = "game_title", unique = true)
     private String title;
+
+    @Column(name = "game_alias", unique = true)
+    private String alias;
 
     @Column(name = "game_description", columnDefinition="text", length=20000)
     private String description;

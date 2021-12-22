@@ -23,13 +23,13 @@ public class GameController {
 
     /**
      * Created by Piotr Romanczak on 01-11-2021
-     * Description: this method returns a Game object by provided Id
-     * @param id
+     * Description: this method returns a Game object by provided alias
+     * @param alias
      * @return Game
      */
-    @GetMapping("/games/{id}")
-    public Game getGame(@PathVariable Long id) {
-        return gameService.getGameById(id);
+    @GetMapping("/games/{alias}")
+    public Game getGame(@PathVariable String alias) {
+        return gameService.getGameByAlias(alias);
     }
 
     /**
