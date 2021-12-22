@@ -2,6 +2,7 @@ package pl.gamematch.GameMatch.model.game;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class Game {
     private String alias;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     @Column(name = "game_description")
     private String description;
 
@@ -39,6 +41,7 @@ public class Game {
     private String descriptionFirstHeader;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     @Column(name = "game_description_first")
     private String descriptionFirst;
 
@@ -49,10 +52,12 @@ public class Game {
     private String trailerUrl;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     @Column(name = "game_sys_req_low")
     private String systemMinimumRequirements;
 
     @Lob
+    @Type(type = "org.hibernate.type.TextType")
     @Column(name = "game_sys_req_rec")
     private String systemRecommendedRequirements;
 
