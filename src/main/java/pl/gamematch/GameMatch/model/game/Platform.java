@@ -18,7 +18,7 @@ public class Platform {
 
     @Id
     @Column(name = "platform_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "platform_name")

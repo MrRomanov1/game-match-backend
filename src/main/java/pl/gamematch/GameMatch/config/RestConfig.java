@@ -38,14 +38,18 @@ public class RestConfig implements RepositoryRestConfigurer {
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 
-        HttpMethod[] theUnsupportedActions = {HttpMethod.PUT,
+        HttpMethod[] gameUnsupportedActions = {HttpMethod.PUT,
+                HttpMethod.DELETE, HttpMethod.PATCH};
+        HttpMethod[] otherUnsupportedActions = {HttpMethod.POST, HttpMethod.PUT,
                 HttpMethod.DELETE, HttpMethod.PATCH};
 
-        // disable HTTP methods for ProductCategory: PUT and DELETE
-        disableHttpMethods(Game.class, config, theUnsupportedActions);
-        disableHttpMethods(GameCategory.class, config, theUnsupportedActions);
-        disableHttpMethods(User.class, config, theUnsupportedActions);
-        disableHttpMethods(Role.class, config, theUnsupportedActions);
+        // disable HTTP methods
+        disableHttpMethods(Game.class, config, gameUnsupportedActions);
+        disableHttpMethods(GameCategory.class, config, otherUnsupportedActions);
+        disableHttpMethods(GameMode.class, config, otherUnsupportedActions);
+        disableHttpMethods(Platform.class, config, otherUnsupportedActions);
+        disableHttpMethods(User.class, config, otherUnsupportedActions);
+        disableHttpMethods(Role.class, config, otherUnsupportedActions);
 
         // call an internal helper method
         exposeIds(config);

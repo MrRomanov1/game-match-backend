@@ -87,4 +87,14 @@ public class GameController {
     public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody GameWrapper inGameWrapper) {
         return gameService.handleGameMatch(inGameWrapper);
     }
+
+    /**
+     * Created by Piotr Romanczak on 17-12-2021
+     * Description: this method inserts Games
+     * @param games
+     */
+    @PostMapping("/games")
+    public void insertGame (@RequestBody List<Game> games) {
+        gameService.insertGame(games);
+    }
 }

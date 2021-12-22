@@ -18,7 +18,7 @@ public class GameCategory {
 
     @Id
     @Column(name = "game_cat_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long gameCategoryId;
 
     @Column(name = "game_cat_name")

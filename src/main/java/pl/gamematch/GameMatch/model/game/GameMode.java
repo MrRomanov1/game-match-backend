@@ -18,7 +18,7 @@ public class GameMode {
 
     @Id
     @Column(name = "game_mode_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "game_mode_name")
