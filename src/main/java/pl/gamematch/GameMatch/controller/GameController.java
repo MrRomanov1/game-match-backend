@@ -23,13 +23,13 @@ public class GameController {
 
     /**
      * Created by Piotr Romanczak on 01-11-2021
-     * Description: this method returns a Game object by provided Id
-     * @param id
+     * Description: this method returns a Game object by provided alias
+     * @param alias
      * @return Game
      */
-    @GetMapping("/games/{id}")
-    public Game getGame(@PathVariable Long id) {
-        return gameService.getGameById(id);
+    @GetMapping("/games/{alias}")
+    public Game getGame(@PathVariable String alias) {
+        return gameService.getGameByAlias(alias);
     }
 
     /**
@@ -86,5 +86,15 @@ public class GameController {
     @PostMapping(path = "/match", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody List<Game> matchGamesToUserInput (@RequestBody GameWrapper inGameWrapper) {
         return gameService.handleGameMatch(inGameWrapper);
+    }
+
+    /**
+     * Created by Piotr Romanczak on 17-12-2021
+     * Description: this method inserts Games
+     * @param games
+     */
+    @PostMapping("/games")
+    public void insertGame (@RequestBody List<Game> games) {
+        gameService.insertGame(games);
     }
 }

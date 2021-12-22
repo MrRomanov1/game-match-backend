@@ -1,9 +1,11 @@
 package pl.gamematch.GameMatch.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import pl.gamematch.GameMatch.dao.GameModeRepository;
 import pl.gamematch.GameMatch.model.game.GameMode;
+import pl.gamematch.GameMatch.service.GameModeService;
 
 import java.util.List;
 
@@ -15,10 +17,10 @@ import java.util.List;
 @RestController
 public class GameModeController {
 
-    private GameModeRepository gameModeRepository;
+    private GameModeService gameModeService;
 
-    public GameModeController(GameModeRepository gameModeRepository) {
-        this.gameModeRepository = gameModeRepository;
+    public GameModeController(GameModeService gameModeService) {
+        this.gameModeService = gameModeService;
     }
 
     /**
@@ -28,6 +30,16 @@ public class GameModeController {
      */
     @GetMapping("/game-modes")
     public List<GameMode> getAllGameModes() {
-        return gameModeRepository.findAll();
+        return gameModeService.getAllGameModes();
+    }
+
+    /**
+     * Created by Piotr Romanczak on 22-12-2021
+     * Description: this method inserts GameModes
+     * @param gameModes
+     */
+    @PostMapping("/game-modes")
+    public void insertGameCategories(@RequestBody List<GameMode> gameModes) {
+        gameModeService.insertGameModes(gameModes);
     }
 }

@@ -22,19 +22,22 @@ public class Game {
 
     @Id
     @Column(name = "game_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Column(name = "game_title")
+    @Column(name = "game_title", unique = true)
     private String title;
 
-    @Column(name = "game_description")
+    @Column(name = "game_alias", unique = true)
+    private String alias;
+
+    @Column(name = "game_description", columnDefinition="text", length=20000)
     private String description;
 
-    @Column(name = "game_description_first_header")
+    @Column(name = "game_description_first_header", columnDefinition="text", length=200)
     private String descriptionFirstHeader;
 
-    @Column(name = "game_description_first")
+    @Column(name = "game_description_first", columnDefinition="text", length=20000)
     private String descriptionFirst;
 
     @Column(name = "game_image_url")
@@ -43,10 +46,10 @@ public class Game {
     @Column(name = "game_trailer_url")
     private String trailerUrl;
 
-    @Column(name = "game_sys_req_low")
+    @Column(name = "game_sys_req_low", columnDefinition="text", length=2000)
     private String systemMinimumRequirements;
 
-    @Column(name = "game_sys_req_rec")
+    @Column(name = "game_sys_req_rec", columnDefinition="text", length=2000)
     private String systemRecommendedRequirements;
 
     @Column(name = "game_rating")
@@ -81,7 +84,6 @@ public class Game {
     @ManyToMany(
             fetch = FetchType.LAZY,
             cascade = {
-            CascadeType.PERSIST,
             CascadeType.MERGE
     })
     @JoinTable(name = "game_game_cat",
@@ -92,7 +94,6 @@ public class Game {
     @ManyToMany(
             fetch = FetchType.LAZY,
             cascade = {
-                    CascadeType.PERSIST,
                     CascadeType.MERGE
             })
     @JoinTable(name = "game_game_mode",
@@ -103,7 +104,6 @@ public class Game {
     @ManyToMany(
             fetch = FetchType.LAZY,
             cascade = {
-                    CascadeType.PERSIST,
                     CascadeType.MERGE
             })
     @JoinTable(name = "game_platform",
