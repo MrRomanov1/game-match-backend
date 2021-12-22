@@ -31,13 +31,15 @@ public class Game {
     @Column(name = "game_alias", unique = true)
     private String alias;
 
-    @Column(name = "game_description", columnDefinition="text", length=20000)
+    @Lob
+    @Column(name = "game_description")
     private String description;
 
-    @Column(name = "game_description_first_header", columnDefinition="text", length=200)
+    @Column(name = "game_description_first_header")
     private String descriptionFirstHeader;
 
-    @Column(name = "game_description_first", columnDefinition="text", length=20000)
+    @Lob
+    @Column(name = "game_description_first")
     private String descriptionFirst;
 
     @Column(name = "game_image_url")
@@ -46,10 +48,12 @@ public class Game {
     @Column(name = "game_trailer_url")
     private String trailerUrl;
 
-    @Column(name = "game_sys_req_low", columnDefinition="text", length=2000)
+    @Lob
+    @Column(name = "game_sys_req_low")
     private String systemMinimumRequirements;
 
-    @Column(name = "game_sys_req_rec", columnDefinition="text", length=2000)
+    @Lob
+    @Column(name = "game_sys_req_rec")
     private String systemRecommendedRequirements;
 
     @Column(name = "game_rating")
