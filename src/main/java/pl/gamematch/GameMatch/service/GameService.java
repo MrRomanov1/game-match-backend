@@ -35,12 +35,12 @@ public class GameService {
 
     /**
      * Created by Piotr Romanczak on 20-11-2021
-     * Description: this method returns a Game object by provided Id
-     * @param id
+     * Description: this method returns a Game object by provided alias
+     * @param alias
      * @return Game
      */
-    public Game getGameById(Long id) {
-        return gameRepository.findById(id).orElse(null);
+    public Game getGameByAlias(String alias) {
+        return gameRepository.findByAlias(alias);
     }
 
     /**
