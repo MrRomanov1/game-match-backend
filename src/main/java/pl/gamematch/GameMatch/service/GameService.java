@@ -361,4 +361,13 @@ public class GameService {
                 .sorted(Comparator.comparingDouble(Game::getRating).reversed())
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Created by Piotr Romanczak on 17-12-2021
+     * Description: this method inserts Games to database
+     * @param games
+     */
+    public void insertGame(List<Game> games) {
+        gameRepository.saveAll(games);
+    }
 }

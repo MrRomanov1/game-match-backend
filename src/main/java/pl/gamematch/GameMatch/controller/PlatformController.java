@@ -1,10 +1,11 @@
 package pl.gamematch.GameMatch.controller;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import pl.gamematch.GameMatch.dao.PlatformRepository;
 import pl.gamematch.GameMatch.model.game.Platform;
+import pl.gamematch.GameMatch.service.PlatformService;
 
 import java.util.List;
 
@@ -16,10 +17,10 @@ import java.util.List;
 @RestController
 public class PlatformController {
 
-    private PlatformRepository platformRepository;
+    private PlatformService platformService;
 
-    public PlatformController(PlatformRepository platformRepository) {
-        this.platformRepository = platformRepository;
+    public PlatformController(PlatformService platformService) {
+        this.platformService = platformService;
     }
 
     /**
@@ -29,6 +30,16 @@ public class PlatformController {
      */
     @GetMapping("/platforms")
     public List<Platform> getAllPlatforms() {
-        return platformRepository.findAll(Sort.by(Sort.Direction.ASC, "order"));
+        return platformService.getAllPlatforms();
+    }
+
+    /**
+     * Created by Piotr Romanczak on 22-12-2021
+     * Description: this method inserts Platforms
+     * @param platforms
+     */
+    @PostMapping("/platforms")
+    public void insertPlatforms (@RequestBody List<Platform> platforms) {
+        platformService.insertPlatforms(platforms);
     }
 }

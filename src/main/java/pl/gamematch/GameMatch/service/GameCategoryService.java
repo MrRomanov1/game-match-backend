@@ -34,4 +34,13 @@ public class GameCategoryService {
 
         return GameCategoryUtils.sortCategoriesByRatings(gameCategoryByRating);
     }
+
+    /**
+     * Created by Piotr Romanczak on 22-12-2021
+     * Description: this method inserts GameCategories to database
+     * @param gameCategories
+     */
+    public void insertGameCategories (List<GameCategory> gameCategories) {
+        gameCategoryRepository.saveAll(gameCategories);
+    }
 }
