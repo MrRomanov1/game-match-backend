@@ -48,6 +48,7 @@ public class RestConfig implements RepositoryRestConfigurer {
         disableHttpMethods(GameCategory.class, config, otherUnsupportedActions);
         disableHttpMethods(GameMode.class, config, otherUnsupportedActions);
         disableHttpMethods(Platform.class, config, otherUnsupportedActions);
+        disableHttpMethods(Theme.class, config, otherUnsupportedActions);
         disableHttpMethods(User.class, config, otherUnsupportedActions);
         disableHttpMethods(Role.class, config, otherUnsupportedActions);
 
