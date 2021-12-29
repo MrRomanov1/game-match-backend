@@ -1,12 +1,8 @@
 package pl.gamematch.GameMatch.service;
 
 import org.springframework.stereotype.Service;
-import pl.gamematch.GameMatch.dao.GameCategoryRepository;
-import pl.gamematch.GameMatch.dao.GameModeRepository;
-import pl.gamematch.GameMatch.dao.GameRepository;
-import pl.gamematch.GameMatch.dao.PlatformRepository;
+import pl.gamematch.GameMatch.dao.*;
 import pl.gamematch.GameMatch.model.game.*;
-import pl.gamematch.GameMatch.utils.GameCategoryUtils;
 import pl.gamematch.GameMatch.utils.Utils;
 
 import java.math.BigDecimal;
@@ -21,21 +17,25 @@ public class GameService {
     private GameCategoryRepository gameCategoryRepository;
     private GameModeRepository gameModeRepository;
     private PlatformRepository platformRepository;
+    private ThemeRepository themeRepository;
 
     public GameService(
             GameRepository gameRepository,
             GameCategoryRepository gameCategoryRepository,
             GameModeRepository gameModeRepository,
-            PlatformRepository platformRepository) {
+            PlatformRepository platformRepository,
+            ThemeRepository themeRepository) {
         this.gameRepository = gameRepository;
         this.gameCategoryRepository = gameCategoryRepository;
         this.gameModeRepository = gameModeRepository;
         this.platformRepository = platformRepository;
+        this.themeRepository = themeRepository;
     }
 
     /**
      * Created by Piotr Romanczak on 20-11-2021
      * Description: this method returns a Game object by provided alias
+     *
      * @param alias
      * @return Game
      */
@@ -46,6 +46,7 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 20-11-2021
      * Description: this method returns List of games by provided category name
+     *
      * @param name
      * @return List<Game>
      */
@@ -65,6 +66,7 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 20-11-2021
      * Description: this method returns List of all games
+     *
      * @return List<Game>
      */
     public List<Game> getAllGames() {
@@ -74,144 +76,115 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 21-11-2021
      * Description: this method returns List of all games by provided GameCategory List
+     *
      * @param inGameWrapper
      * @return List<Game>
      */
     public List<Game> handleGameMatch(GameWrapper inGameWrapper) {
         ArrayList<GameCategory> inGameCategories = inGameWrapper.getGameCategories();
+        ArrayList<Theme> inThemes = inGameWrapper.getThemes();
         List<GameMode> inGameModes = inGameWrapper.getGameModes();
         List<Platform> inPlatforms = inGameWrapper.getPlatforms();
+
         List<GameCategory> gameCategories =
                 gameCategoryRepository
                         .findGameCategoriesByNameIn(getGameCategoryNames(inGameCategories));
 
-        List<GameCategory> categoriesSortedByRatings = getGameCategoriesSortedByRating(gameCategories);
+        List<Theme> themes = themeRepository.findThemesByNameIn(getThemeNames(inThemes));
 
-        List<Game> gameList = gameRepository.findGamesByGameCategoriesIn(categoriesSortedByRatings);
+        List<Game> gameListByCategories = gameRepository.findGamesByGameCategoriesIn(gameCategories);
         List<Game> gameListByGameModes = gameRepository.findGamesByGameModesIn(inGameModes);
         List<Game> gameListByPlatforms = gameRepository.findGamesByPlatformsIn(inPlatforms);
+        List<Game> gameListByThemes = gameRepository.findGamesByThemesIn(inThemes);
 
         Set<Game> gameListByOtherConditions = getGamesByOtherConditions(gameListByGameModes, gameListByPlatforms);
 
-        if (inGameCategories.isEmpty()) {
-            return gameListByOtherConditions.stream()
-                    .sorted(Comparator.comparingDouble(Game::calculateGameRating))
-                    .collect(Collectors.toList());
+        if (inGameCategories.isEmpty() && inThemes.isEmpty()) {
+            if (gameListByOtherConditions.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return gameListByOtherConditions.stream()
+                        .sorted(Comparator.comparingDouble(Game::calculateGameRating))
+                        .collect(Collectors.toList());
+            }
         }
+        Set<Game> gameListWithoutDuplicates = getGamesByAllConditions(gameListByCategories, gameListByOtherConditions, gameListByThemes);
 
-        Set<Game> gameListWithoutDuplicates = getGamesByAllConditions(gameList, gameListByOtherConditions);
-
-        List<String> categoryNamesToCompare = categoriesSortedByRatings
-                .stream()
-                .map(GameCategory::getName)
-                .collect(Collectors.toList());
-
-
-        return handleGameMatchingCalculations(gameListWithoutDuplicates, categoryNamesToCompare);
+        return handleGameMatchingCalculations(gameListWithoutDuplicates, gameCategories, themes);
     }
 
     /**
      * Created by Piotr Romanczak on 10-11-2021
      * Description: this method calculates gameMatch field of all games
+     *
      * @param gameList
-     * @param categoryNames
+     * @param categories
+     * @param themes
      * @return List<Game>
      */
-    private List<Game> handleGameMatchingCalculations(Set<Game> gameList, List<String> categoryNames) {
+    private List<Game> handleGameMatchingCalculations(Set<Game> gameList, List<GameCategory> categories, List<Theme> themes) {
 
-        List<Game> gamesWithMatch = new ArrayList<>();
-        List<Game> gamesAlreadyAdded = new ArrayList<>();
-        int numberOfInsertedCategories = categoryNames.size();
-        int whileCounterToCalculateMatch = 0;
+        double parameterFactor = (!categories.isEmpty() && !themes.isEmpty() ? 0.5d : 1d);
 
-        while (!categoryNames.isEmpty()) {
-            if (!gameList.isEmpty()) {
-                List<Game> currentIterationGamesWithMatch = new ArrayList<>();
+        if (categories.size() > 0) {
+            calculateMatchByCategory(gameList, categories, parameterFactor);
+        }
 
-                for (Game game : gameList) {
-                    List<String> gameCategories = game.getSingleGameCategoriesNames();
+        if (themes.size() > 0) {
+            calculateMatchByTheme(gameList, themes, parameterFactor);
+        }
+        if (!gameList.isEmpty()) {
+            return gameList
+                    .stream()
+                    .sorted((o1, o2) -> o2.getGameMatch().compareTo(o1.getGameMatch()))
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
 
-                    if (gameCategories.containsAll(categoryNames) && !gamesAlreadyAdded.contains(game)) {
-                        game.setGameMatch(calculateCurrentGameMatch(
-                                numberOfInsertedCategories,
-                                whileCounterToCalculateMatch));
-
-                        currentIterationGamesWithMatch.add(game);
-                        gamesAlreadyAdded.add(game);
-                    }
-                }
-                if (currentIterationGamesWithMatch.size() > 1) {
-                    gamesWithMatch.addAll(calculateGameMatchByRating(
-                            currentIterationGamesWithMatch,
-                            numberOfInsertedCategories,
-                            whileCounterToCalculateMatch));
-                } else if (currentIterationGamesWithMatch.size() == 1) {
-                    gamesWithMatch.addAll(currentIterationGamesWithMatch);
+    /**
+     * Created by Piotr Romanczak on 29-12-2021
+     * Description: this method calculates gameMatch of current games by category
+     * @param gameList
+     * @param categories
+     * @param parameterFactor
+     * @return Set<Game>
+     */
+    private Set<Game> calculateMatchByCategory (Set<Game> gameList, List<GameCategory> categories, double parameterFactor) {
+        for (GameCategory category : categories) {
+            for (Game game : gameList) {
+                if (game.getSingleGameCategoriesNames().contains(category.getName())) {
+                    game.setGameMatch(calculateNewGameMatch(game, categories.size(), parameterFactor));
                 }
             }
-            categoryNames.remove(categoryNames.size() - 1);
-            whileCounterToCalculateMatch++;
         }
-
-        return gamesWithMatch
-                .stream()
-                .sorted((o1, o2) -> o2.getGameMatch().compareTo(o1.getGameMatch()))
-                .collect(Collectors.toList());
+        return gameList;
     }
 
     /**
-     * Created by Piotr Romanczak on 21-11-2021
-     * Description: this method returns List of gameCategories sorted by their rating
-     * @param gameCategories
-     * @return List<GameCategory>
+     * Created by Piotr Romanczak on 29-12-2021
+     * Description: this method calculates gameMatch of current games by theme
+     * @param gameList
+     * @param themes
+     * @param parameterFactor
+     * @return Set<Game>
      */
-    private List<GameCategory> getGameCategoriesSortedByRating(List<GameCategory> gameCategories) {
-        Map<GameCategory, Double> gameCategoryByRating = new HashMap<>();
-
-        for (GameCategory category : gameCategories) {
-            gameCategoryByRating.put(category, category.calculateCategoryRating());
+    private Set<Game> calculateMatchByTheme (Set<Game> gameList, List<Theme> themes, double parameterFactor) {
+        for (Theme theme : themes) {
+            for (Game game : gameList) {
+                if (game.getSingleThemeNames().contains(theme.getName())) {
+                    game.setGameMatch(calculateNewGameMatch(game, themes.size(), parameterFactor));
+                }
+            }
         }
-
-        return GameCategoryUtils.sortCategoriesByRatings(gameCategoryByRating);
-    }
-
-    /**
-     * Created by Piotr Romanczak on 11-11-2021
-     * Description: this method calculates gameMatch of current while loop
-     * @param numberOfInsertedCategories
-     * @param whileCounterToCalculateMatch
-     * @return Double
-     */
-    private Double calculateCurrentGameMatch(int numberOfInsertedCategories, int whileCounterToCalculateMatch) {
-        Double currentGameMatch = ((numberOfInsertedCategories - whileCounterToCalculateMatch) * 100d / numberOfInsertedCategories);
-
-        return BigDecimal.valueOf(currentGameMatch)
-                .setScale(2, RoundingMode.HALF_UP)
-                .doubleValue();
-    }
-
-    /**
-     * Created by Piotr Romanczak on 11-11-2021
-     * Description: this method calculates is used to recalculate gameMatch field value
-     * when there is more than one game with the same match
-     * but only if match is higher than 50
-     * @param gamesWithMatchToRecalculate
-     * @param numberOfCategories
-     * @param numberOfIterations
-     * @return List <Game>
-     */
-    private List<Game> calculateGameMatchByRating(List<Game> gamesWithMatchToRecalculate, int numberOfCategories, int numberOfIterations) {
-        Double currentGroupMatchValue = gamesWithMatchToRecalculate.get(0).getGameMatch();
-
-        if (currentGroupMatchValue >= 50) {
-            return getCurrentGroupMatch(gamesWithMatchToRecalculate, numberOfCategories, numberOfIterations, currentGroupMatchValue);
-        }
-        return gamesWithMatchToRecalculate;
+        return gameList;
     }
 
     /**
      * Created by Piotr Romanczak on 21-11-2021
      * Description: this method returns List of gameCategory names from provided category list
+     *
      * @param inGameCategories
      * @return List<String>
      */
@@ -224,56 +197,48 @@ public class GameService {
     }
 
     /**
-     * Created by Piotr Romanczak on 11-11-2021
-     * Description: this method calculates gameMatch of current while loop
-     * when there are more than one game with the same match
-     * @param currentGroupMatchValue
-     * @param matchValueRange
-     * @param mapIterator
-     * @param mapSize
-     * @return Double
+     * Created by Piotr Romanczak on 29-12-2021
+     * Description: this method returns List of gameCategory names from provided category list
+     *
+     * @param inThemes
+     * @return List<String>
      */
-    private Double calculateNewGameMatch(Double currentGroupMatchValue, Double matchValueRange, int mapIterator, int mapSize) {
-        Double newGameMatch = currentGroupMatchValue - (matchValueRange / mapSize) * mapIterator;
-
-        return BigDecimal.valueOf(newGameMatch)
-                .setScale(2, RoundingMode.HALF_UP)
-                .doubleValue();
+    private List<String> getThemeNames(ArrayList<Theme> inThemes) {
+        List<String> themeNames = new ArrayList<>();
+        for (Theme themeFromInput : inThemes) {
+            themeNames.add(themeFromInput.getName());
+        }
+        return themeNames;
     }
 
     /**
      * Created by Piotr Romanczak on 11-11-2021
-     * Description: this method gameMatch of current group iteration
+     * Description: this method calculates gameMatch of current while loop
      * when there are more than one game with the same match
-     * @param gamesWithMatchToRecalculate
-     * @param numberOfCategories
-     * @param numberOfIterations
-     * @param currentGroupMatchValue
-     * @return List <Game>
+     *
+     * @param game
+     * @param numberOfParameters
+     * @param parameterFactor
+     * @return Double
      */
-    private List<Game> getCurrentGroupMatch(List<Game> gamesWithMatchToRecalculate, int numberOfCategories, int numberOfIterations, Double currentGroupMatchValue) {
-        List<Game> gamesWithNewMatchValues = new ArrayList<>();
-        Double nextGroupMatchValue = ((numberOfCategories - numberOfIterations - 1) * 100d / numberOfCategories);
-        Double matchValueRange = currentGroupMatchValue - nextGroupMatchValue;
-        Map<Game, Integer> gamesValuedByRatings = new HashMap<>();
-
-        for (Game gameByMatch : gamesWithMatchToRecalculate) {
-            gamesValuedByRatings.put(gameByMatch, gameByMatch.getRating() * gameByMatch.getNumberOfVotes());
+    private Double calculateNewGameMatch(Game game, int numberOfParameters, double parameterFactor) {
+        Double gameMatchToAdd = (100d / numberOfParameters) * parameterFactor;
+        double newGameMatch = 0d;
+        if (game.getGameMatch() == null) {
+            newGameMatch += gameMatchToAdd;
+        } else {
+            newGameMatch = game.getGameMatch() + gameMatchToAdd;
         }
-        Map<Game, Integer> gamesValuedByRatingsSorted = Utils.sortByValue(gamesValuedByRatings);
 
-        int mapIterator = 0;
-        for (Map.Entry<Game, Integer> gameByRating : gamesValuedByRatingsSorted.entrySet()) {
-            gameByRating.getKey().setGameMatch(calculateNewGameMatch(currentGroupMatchValue, matchValueRange, mapIterator, gamesWithMatchToRecalculate.size()));
-            gamesWithNewMatchValues.add(gameByRating.getKey());
-            mapIterator++;
-        }
-        return gamesWithNewMatchValues;
+        return BigDecimal.valueOf(newGameMatch)
+                .setScale(0, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     /**
      * Created by Piotr Romanczak on 06-12-2021
      * Description: this method intersects list of games by other conditions
+     *
      * @param gameListByGameModes
      * @param gameListByPlatforms
      * @return Set <Game>
@@ -297,33 +262,55 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 06-12-2021
      * Description: this method intersects list of games with list of games by other conditions
-     * @param gameList
+     *
+     * @param gameListByCategories
      * @param gameListByOtherConditions
+     * @param gameListByThemes
      * @return Set <Game>
      */
-    private Set<Game> getGamesByAllConditions(List<Game> gameList, Set<Game> gameListByOtherConditions) {
+    private Set<Game> getGamesByAllConditions(List<Game> gameListByCategories, Set<Game> gameListByOtherConditions, List<Game> gameListByThemes) {
         Set<Game> gameListByAllConditions = new HashSet<>();
-        if (!gameList.isEmpty() && !gameListByOtherConditions.isEmpty()) {
-            for (Game game : gameList) {
-                if (gameListByOtherConditions.contains(game)) {
-                    gameListByAllConditions.add(game);
+
+        if (gameListByCategories.isEmpty() && gameListByThemes.isEmpty() && !gameListByOtherConditions.isEmpty()) {
+            return gameListByOtherConditions;
+        }
+        else if (!gameListByOtherConditions.isEmpty()) {
+            if (!gameListByCategories.isEmpty()) {
+                for (Game game : gameListByCategories) {
+                    if (gameListByOtherConditions.contains(game)) {
+                        gameListByAllConditions.add(game);
+                    }
                 }
             }
-        } else if (gameList.isEmpty() && !gameListByOtherConditions.isEmpty()) {
-            return gameListByOtherConditions;
-        } else if (!gameList.isEmpty() && gameListByOtherConditions.isEmpty()){
-            return Set.copyOf(gameList);
+            if (!gameListByThemes.isEmpty()) {
+                for (Game game : gameListByThemes) {
+                    if (gameListByOtherConditions.contains(game)) {
+                        gameListByAllConditions.add(game);
+                    }
+                }
+            }
+            return gameListByAllConditions;
         }
-        return gameListByAllConditions;
+        else if (gameListByOtherConditions.isEmpty()) {
+            if (!gameListByCategories.isEmpty()) {
+                gameListByAllConditions.addAll(gameListByCategories);
+            }
+            if (!gameListByThemes.isEmpty()) {
+                gameListByAllConditions.addAll(gameListByThemes);
+            }
+            return gameListByAllConditions;
+        }
+        return null;
     }
 
     /**
      * Created by Piotr Romanczak on 18-12-2021
      * Description: this method returns List of all games that have not been released yet
+     *
      * @return List<Game>
      */
     public List<Game> getNotReleasedGames() {
-        List <Game> notReleasedGames = new ArrayList<>();
+        List<Game> notReleasedGames = new ArrayList<>();
 
         Date today = new Date();
         List<Game> allGames = gameRepository.findAll();
@@ -339,6 +326,7 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 18-12-2021
      * Description: this method returns List of most popular games
+     *
      * @return List<Game>
      */
     public List<Game> getPopularGames() {
@@ -352,6 +340,7 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 18-12-2021
      * Description: this method returns List of most popular games
+     *
      * @return List<Game>
      */
     public List<Game> getHighRatedGames() {
@@ -365,6 +354,7 @@ public class GameService {
     /**
      * Created by Piotr Romanczak on 17-12-2021
      * Description: this method inserts Games to database
+     *
      * @param games
      */
     public void insertGame(List<Game> games) {

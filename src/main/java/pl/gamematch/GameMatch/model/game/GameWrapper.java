@@ -12,4 +12,5 @@ public class GameWrapper {
     private ArrayList<GameCategory> gameCategories;
     private List<GameMode> gameModes;
     private List<Platform> platforms;
+    private ArrayList<Theme> themes;
 }
