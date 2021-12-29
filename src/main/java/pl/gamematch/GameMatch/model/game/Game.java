@@ -120,12 +120,30 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "platform_id")})
     private Collection<Platform> platforms;
 
+    @ManyToMany(
+            fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.MERGE
+            })
+    @JoinTable(name = "game_theme",
+            joinColumns = {@JoinColumn(name = "game_id")},
+            inverseJoinColumns = {@JoinColumn(name = "theme_id")})
+    private Collection<Theme> themes;
+
     public List<String> getSingleGameCategoriesNames() {
         List<String> gameCategoryNames = new ArrayList<>();
         for (GameCategory gameCat : gameCategories) {
             gameCategoryNames.add(gameCat.getName());
         }
         return gameCategoryNames;
+    }
+
+    public List<String> getSingleThemeNames() {
+        List<String> themeNames = new ArrayList<>();
+        for (Theme theme : themes) {
+            themeNames.add(theme.getName());
+        }
+        return themeNames;
     }
 
     public int calculateGameRating() {

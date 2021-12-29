@@ -2,10 +2,7 @@ package pl.gamematch.GameMatch.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import pl.gamematch.GameMatch.model.game.Game;
-import pl.gamematch.GameMatch.model.game.GameCategory;
-import pl.gamematch.GameMatch.model.game.GameMode;
-import pl.gamematch.GameMatch.model.game.Platform;
+import pl.gamematch.GameMatch.model.game.*;
 
 import java.util.List;
 
@@ -19,4 +16,5 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findGamesByGameCategoriesIn (List <GameCategory> gameCategoryList);
     List<Game> findGamesByGameModesIn (List <GameMode> gameModeList);
     List<Game> findGamesByPlatformsIn (List <Platform> platformList);
+    List<Game> findGamesByThemesIn (List <Theme> platformList);
 }
