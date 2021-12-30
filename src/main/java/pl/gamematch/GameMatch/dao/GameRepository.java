@@ -11,6 +11,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     Game findByAlias (String alias);
     List<Game> findGamesByGameCategoriesAlias(String name);
+    List<Game> findGamesByThemesAlias (String name);
     List<Game> findGamesByGameModesName (String gameModeName);
     List<Game> findGamesByPlatformsType(String platformType);
     List<Game> findGamesByGameCategoriesIn (List <GameCategory> gameCategoryList);
