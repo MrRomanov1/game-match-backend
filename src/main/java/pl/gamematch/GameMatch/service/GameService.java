@@ -3,7 +3,6 @@ package pl.gamematch.GameMatch.service;
 import org.springframework.stereotype.Service;
 import pl.gamematch.GameMatch.dao.*;
 import pl.gamematch.GameMatch.model.game.*;
-import pl.gamematch.GameMatch.utils.Utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,7 +59,10 @@ public class GameService {
         if (!platformRepository.findPlatformsByType(name).isEmpty()) {
             return Set.copyOf(gameRepository.findGamesByPlatformsType(name));
         }
-        return null;
+        if (!themeRepository.findThemesByAlias(name).isEmpty()) {
+            return Set.copyOf(gameRepository.findGamesByThemesAlias(name));
+        }
+        return Collections.emptySet();
     }
 
     /**
