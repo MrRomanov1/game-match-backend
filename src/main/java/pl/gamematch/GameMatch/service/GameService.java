@@ -136,6 +136,8 @@ public class GameService {
             calculateMatchByTheme(gameList, themes, parameterFactor);
         }
         if (!gameList.isEmpty()) {
+            handleNullGameMatch(gameList);
+
             return gameList
                     .stream()
                     .sorted((o1, o2) -> o2.getGameMatch().compareTo(o1.getGameMatch()))
@@ -303,6 +305,19 @@ public class GameService {
             return gameListByAllConditions;
         }
         return null;
+    }
+
+    /**
+     * Created by Piotr Romanczak on 31-12-2021
+     * Description: this method sets null gameMatch to 0
+     * @param games
+     */
+    private void handleNullGameMatch(Set<Game> games) {
+        for (Game game : games) {
+            if (game.getGameMatch() == null) {
+                game.setGameMatch(0d);
+            }
+        }
     }
 
     /**
