@@ -16,6 +16,14 @@ import javax.persistence.*;
 @Setter
 public class GameCategory {
 
+
+    public GameCategory(String name, String alias, Double rating, Long numberOfVotes) {
+        this.name = name;
+        this.alias = alias;
+        this.rating = rating;
+        this.numberOfVotes = numberOfVotes;
+    }
+
     @Id
     @Column(name = "game_cat_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
