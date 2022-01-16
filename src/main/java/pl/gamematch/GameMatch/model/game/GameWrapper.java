@@ -13,4 +13,11 @@ public class GameWrapper {
     private List<GameMode> gameModes;
     private List<Platform> platforms;
     private ArrayList<Theme> themes;
+
+    public GameWrapper(ArrayList<GameCategory> gameCategories, List<GameMode> gameModes, List<Platform> platforms, ArrayList<Theme> themes) {
+        this.gameCategories = gameCategories;
+        this.gameModes = gameModes;
+        this.platforms = platforms;
+        this.themes = themes;
+    }
 }

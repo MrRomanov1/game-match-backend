@@ -15,6 +15,7 @@ import pl.gamematch.GameMatch.model.game.*;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +37,7 @@ class GameServiceTest {
             .createGameListWithRelatedRecords(
                     NUMBER_OF_ELEMENTS, gameCategories,
                     gameModes, platforms, themes
-                    );
+            );
 
     @Mock
     private GameRepository gameRepositoryMock;
@@ -63,8 +64,8 @@ class GameServiceTest {
         List<Game> gamesSortedByRating = gameService.getHighRatedGames();
         //then
         assertEquals(gameList.size(), gamesSortedByRating.size());
-        assert(gamesSortedByRating.get(0).getRating() > gamesSortedByRating.get(1).getRating());
-        assert(gamesSortedByRating.get(1).getRating() > gamesSortedByRating.get(2).getRating());
+        assert (gamesSortedByRating.get(0).getRating() > gamesSortedByRating.get(1).getRating());
+        assert (gamesSortedByRating.get(1).getRating() > gamesSortedByRating.get(2).getRating());
     }
 
     @Test
@@ -75,8 +76,8 @@ class GameServiceTest {
         List<Game> gamesSortedByRating = gameService.getPopularGames();
         //then
         assertEquals(gameList.size(), gamesSortedByRating.size());
-        assert(gamesSortedByRating.get(0).calculateGameRating() > gamesSortedByRating.get(1).calculateGameRating());
-        assert(gamesSortedByRating.get(1).calculateGameRating() > gamesSortedByRating.get(2).calculateGameRating());
+        assert (gamesSortedByRating.get(0).calculateGameRating() > gamesSortedByRating.get(1).calculateGameRating());
+        assert (gamesSortedByRating.get(1).calculateGameRating() > gamesSortedByRating.get(2).calculateGameRating());
     }
 
     @Test
@@ -88,9 +89,9 @@ class GameServiceTest {
         List<Game> futureGames = gameService.getNotReleasedGames();
         //then
         assertEquals(gameList.size(), futureGames.size());
-        assert(futureGames.get(0).getReleaseDate().after(today));
-        assert(futureGames.get(1).getReleaseDate().after(today));
-        assert(futureGames.get(2).getReleaseDate().after(today));
+        assert (futureGames.get(0).getReleaseDate().after(today));
+        assert (futureGames.get(1).getReleaseDate().after(today));
+        assert (futureGames.get(2).getReleaseDate().after(today));
     }
 
     @Test
@@ -125,7 +126,7 @@ class GameServiceTest {
         Set<Game> gamesByCategoryAlias = gameService.getGamesByCategory(gameCategories.get(0).getAlias());
         //then
         assertEquals(gameListWithRelatedRecords.size(), gamesByCategoryAlias.size());
-        assert(gameListWithRelatedRecords.get(0).getGameCategories().contains(gameCategories.get(0)));
+        assert (gameListWithRelatedRecords.get(0).getGameCategories().contains(gameCategories.get(0)));
     }
 
     @Test
@@ -139,7 +140,7 @@ class GameServiceTest {
         Set<Game> gamesByModeName = gameService.getGamesByCategory(gameModes.get(0).getName());
         //then
         assertEquals(gameListWithRelatedRecords.size(), gamesByModeName.size());
-        assert(gameListWithRelatedRecords.get(0).getGameModes().contains(gameModes.get(0)));
+        assert (gameListWithRelatedRecords.get(0).getGameModes().contains(gameModes.get(0)));
     }
 
     @Test
@@ -153,7 +154,7 @@ class GameServiceTest {
         Set<Game> gamesByPlatform = gameService.getGamesByCategory(platforms.get(0).getType());
         //then
         assertEquals(gameListWithRelatedRecords.size(), gamesByPlatform.size());
-        assert(gameListWithRelatedRecords.get(0).getPlatforms().contains(platforms.get(0)));
+        assert (gameListWithRelatedRecords.get(0).getPlatforms().contains(platforms.get(0)));
     }
 
     @Test
@@ -167,7 +168,7 @@ class GameServiceTest {
         Set<Game> gamesByPlatform = gameService.getGamesByCategory(themes.get(0).getAlias());
         //then
         assertEquals(gameListWithRelatedRecords.size(), gamesByPlatform.size());
-        assert(gameListWithRelatedRecords.get(0).getThemes().contains(themes.get(0)));
+        assert (gameListWithRelatedRecords.get(0).getThemes().contains(themes.get(0)));
     }
 
     @Test
@@ -177,5 +178,51 @@ class GameServiceTest {
         Set<Game> gamesByConditionName = gameService.getGamesByCategory(anyString());
         //then
         assertEquals(0, gamesByConditionName.size());
+    }
+
+    @Test
+    void shouldReturnEmptyList() {
+        //given
+        GameWrapper gameWrapper = new GameWrapper(new ArrayList<>(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, new ArrayList<>());
+        //when
+        List<Game> matchedGamesList = gameService.handleGameMatch(gameWrapper);
+        //then
+        assertEquals(0, matchedGamesList.size());
+    }
+
+    @Test
+    void shouldReturnGamesWithNullMatch() {
+        //given
+        GameWrapper gameWrapper = new GameWrapper(new ArrayList<>(), gameModes, Collections.EMPTY_LIST, new ArrayList<>());
+        //when
+        when(gameRepositoryMock.findGamesByGameModesIn(gameModes))
+                .thenReturn(gameListWithRelatedRecords);
+        List<Game> matchedGamesList = gameService.handleGameMatch(gameWrapper);
+        //then
+        assertEquals(gameListWithRelatedRecords.size(), matchedGamesList.size());
+        for (Game game : matchedGamesList) {
+            assertNull(game.getGameMatch());
+        }
+    }
+
+    @Test
+    void shouldReturnGameListWithNotNullGameMatch() {
+        //given
+        GameWrapper gameWrapper = new GameWrapper(new ArrayList<>(gameCategories), gameModes, Collections.EMPTY_LIST, new ArrayList<>(themes));
+        //when
+        when(gameCategoryRepositoryMock.findGameCategoriesByNameIn(anyList()))
+                .thenReturn(gameCategories);
+        when(themeRepositoryMock.findThemesByNameIn(anyList())).thenReturn(themes);
+        when(gameRepositoryMock.findGamesByGameCategoriesIn(gameCategories))
+                .thenReturn(gameListWithRelatedRecords);
+        when(gameRepositoryMock.findGamesByGameModesIn(gameModes))
+                .thenReturn(gameListWithRelatedRecords);
+        when(gameRepositoryMock.findGamesByThemesIn(themes)).thenReturn(gameListWithRelatedRecords);
+        List<Game> matchedGamesList = gameService.handleGameMatch(gameWrapper);
+        //then
+        assertEquals(gameListWithRelatedRecords.size(), matchedGamesList.size());
+        for (Game game : matchedGamesList) {
+            assertNotNull(game.getGameMatch());
+        }
     }
 }
