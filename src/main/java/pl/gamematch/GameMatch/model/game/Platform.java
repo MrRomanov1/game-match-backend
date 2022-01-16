@@ -32,4 +32,9 @@ public class Platform {
 
     @Column(name = "platform_type")
     private String type;
+
+    public Platform(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
 }

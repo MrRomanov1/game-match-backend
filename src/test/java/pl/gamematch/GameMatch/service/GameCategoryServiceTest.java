@@ -21,7 +21,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class GameCategoryServiceTest {
 
-    public static final int NUMBER_OF_ELEMENTS = 3;
+    private static final int NUMBER_OF_ELEMENTS = 3;
 
     @Mock
     private GameCategoryRepository gameCategoryRepositoryMock;
@@ -30,7 +30,7 @@ class GameCategoryServiceTest {
     private GameCategoryService gameCategoryService;
 
     @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
+    private final MockitoRule rule = MockitoJUnit.rule();
 
     @Test
     void shouldReturnSortedGameCategoryList() {
