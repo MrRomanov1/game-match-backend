@@ -51,6 +51,13 @@ public class GameCategory {
     private Date modifiedBy;
     */
 
+    public GameCategory(String name, String alias, Double rating, Long numberOfVotes) {
+        this.name = name;
+        this.alias = alias;
+        this.rating = rating;
+        this.numberOfVotes = numberOfVotes;
+    }
+
     public Double calculateCategoryRating() {
         return rating * numberOfVotes;
     }
