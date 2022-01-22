@@ -1,6 +1,7 @@
 package pl.gamematch.GameMatch.model.game;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,6 +12,7 @@ import javax.persistence.*;
  */
 
 @Entity
+@NoArgsConstructor
 @Table(name="game_cat")
 @Getter
 @Setter

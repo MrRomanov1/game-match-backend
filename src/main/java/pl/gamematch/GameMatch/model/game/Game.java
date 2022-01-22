@@ -1,6 +1,7 @@
 package pl.gamematch.GameMatch.model.game;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 
@@ -16,6 +17,7 @@ import java.util.List;
  */
 
 @Entity
+@NoArgsConstructor
 @Table(name="game")
 @Getter
 @Setter
