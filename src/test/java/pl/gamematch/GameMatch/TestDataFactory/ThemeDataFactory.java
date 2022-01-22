@@ -1,7 +1,6 @@
 package pl.gamematch.GameMatch.TestDataFactory;
 
 import com.github.javafaker.Faker;
-import pl.gamematch.GameMatch.model.game.Platform;
 import pl.gamematch.GameMatch.model.game.Theme;
 
 import java.util.List;
