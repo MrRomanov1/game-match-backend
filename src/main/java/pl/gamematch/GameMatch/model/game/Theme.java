@@ -26,4 +26,9 @@ public class Theme {
 
     @Column(name = "theme_alias")
     private String alias;
+
+    public Theme(String name, String alias) {
+        this.name = name;
+        this.alias = alias;
+    }
 }

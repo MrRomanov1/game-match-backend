@@ -23,4 +23,8 @@ public class GameMode {
 
     @Column(name = "game_mode_name")
     private String name;
+
+    public GameMode(String name) {
+        this.name = name;
+    }
 }

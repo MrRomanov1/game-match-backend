@@ -130,6 +130,23 @@ public class Game {
             inverseJoinColumns = {@JoinColumn(name = "theme_id")})
     private Collection<Theme> themes;
 
+    public Game(
+            String title, String alias, int rating,
+            int numberOfVotes, Date releaseDate, Double gameMatch,
+            Collection<GameCategory> gameCategories, Collection<GameMode> gameModes,
+            Collection<Platform> platforms, Collection<Theme> themes) {
+        this.title = title;
+        this.alias = alias;
+        this.rating = rating;
+        this.numberOfVotes = numberOfVotes;
+        this.releaseDate = releaseDate;
+        this.gameMatch = gameMatch;
+        this.gameCategories = gameCategories;
+        this.gameModes = gameModes;
+        this.platforms = platforms;
+        this.themes = themes;
+    }
+
     public List<String> getSingleGameCategoriesNames() {
         List<String> gameCategoryNames = new ArrayList<>();
         for (GameCategory gameCat : gameCategories) {
